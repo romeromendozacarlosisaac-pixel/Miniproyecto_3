@@ -4,7 +4,7 @@
 
 import pytest
 import numpy as np
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 from fastapi.testclient import TestClient
 
 # ── Datos de prueba ───────────────────────────────────────────────────────────
