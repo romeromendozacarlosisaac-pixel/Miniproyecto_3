@@ -1,4 +1,5 @@
 # Telco Customer Churn — MLOps Pipeline
+## Grupo: Natalia Alvarado, Camilo Mújica, Sergio Rada y Carlos Romero
 
 Servicio de inferencia para predicción de churn en clientes de telecomunicaciones, construido con **FastAPI** y empaquetado en **Docker**, con CI/CD automatizado mediante **GitHub Actions**.
 
@@ -11,8 +12,8 @@ La API expone **4 modelos simultáneos**: Random Forest, XGBoost, CatBoost y Lig
 ```
 telco-churn-mlops/
 ├── data/
-│   ├── telco_churn.csv              # Dataset original
-│   └── models/                      # Modelos entrenados
+│   ├── telco_churn.csv              #Dataset original
+│   └── models/                      #Modelos entrenados
 │       ├── rf_best.pkl
 │       ├── xgb_best.pkl
 │       ├── cb_best.pkl
@@ -22,8 +23,8 @@ telco-churn-mlops/
 │   ├── 2_model_training.ipynb
 │   └── 3_interpretability.ipynb
 ├── app/
-│   ├── api.py                       # Endpoints FastAPI
-│   └── schemas.py                   # Validación Pydantic
+│   ├── api.py                       #Endpoints FastAPI
+│   └── schemas.py                   #Validación Pydantic
 ├── tests/
 │   ├── test_api.py
 │   └── test_model.py
@@ -89,7 +90,7 @@ POST /predict/xgboost
 
 ## Opción A — Probar descargando la imagen Docker publicada
 
-Esta es la forma más rápida. Solo necesitas tener **Docker Desktop** instalado y corriendo.
+Esta es la forma más rápida. Solo necesitas tener **Docker Desktop** instalado y corriendo. Luego de eso en Bash:
 
 ### Paso 1 — Descargar la imagen
 
@@ -123,7 +124,7 @@ http://localhost:8000/docs
 
 Verás la documentación interactiva de Swagger generada automáticamente por FastAPI. Desde ahí puedes seleccionar el modelo, completar los campos del cliente y ejecutar predicciones con un botón, sin necesidad de escribir ningún comando adicional.
 
-Para detener el contenedor: `CTRL + C` en la terminal donde corre.
+Para detener el contenedor: `CTRL + C` en la terminal donde corre, y para reactivarlo nuevamente aplicar el Paso 2.
 
 ---
 
@@ -138,6 +139,8 @@ Esta opción requiere clonar el repositorio y tener Python 3.11 instalado.
 
 ### Paso 1 — Clonar el repositorio
 
+Utilizando Bash:
+
 ```bash
 git clone https://github.com/romeromendozacarlosisaac-pixel/telco-churn-mlops.git
 cd telco-churn-mlops
@@ -146,13 +149,13 @@ cd telco-churn-mlops
 ### Paso 2 — Crear y activar el entorno virtual
 
 ```bash
-# Crear el entorno
+#Crear el entorno
 python -m venv venv
 
-# Activar en Windows
+#Activar en Windows
 venv\Scripts\activate
 
-# Activar en macOS / Linux
+#Activar en macOS / Linux
 source venv/bin/activate
 ```
 
@@ -186,10 +189,10 @@ Para detener el servidor: `CTRL + C`.
 ## Pruebas unitarias
 
 ```bash
-# Pruebas de API (no requieren modelos en disco)
+#Pruebas de API (no requieren modelos en disco)
 pytest tests/test_api.py -v
 
-# Pruebas de modelo (requieren data/models/*.pkl y data/telco_churn.csv)
+#Pruebas de modelo (requieren data/models/*.pkl y data/telco_churn.csv)
 pytest tests/test_model.py -v
 ```
 
