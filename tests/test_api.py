@@ -30,8 +30,13 @@ VALID_CUSTOMER = {
     "TotalCharges": 1026.0,
 }
 
-LOW_RISK_CUSTOMER = {**VALID_CUSTOMER, "Contract": "Two year", "tenure": 60,
-                     "MonthlyCharges": 20.0, "TotalCharges": 1200.0}
+LOW_RISK_CUSTOMER = {
+    **VALID_CUSTOMER,
+    "Contract": "Two year",
+    "tenure": 60,
+    "MonthlyCharges": 20.0,
+    "TotalCharges": 1200.0,
+}
 
 
 # =============================================================================

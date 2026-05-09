@@ -13,9 +13,9 @@ from pydantic import BaseModel, Field, field_validator
 
 class ModelName(str, Enum):
     random_forest = "random_forest"
-    xgboost       = "xgboost"
-    catboost      = "catboost"
-    lightgbm      = "lightgbm"
+    xgboost = "xgboost"
+    catboost = "catboost"
+    lightgbm = "lightgbm"
 
 
 # =============================================================================
@@ -30,27 +30,27 @@ class CustomerInput(BaseModel):
     """
 
     # ── Demográficas ──────────────────────────────────────────────────────────
-    gender:         Literal["Male", "Female"]
-    SeniorCitizen:  Literal[0, 1]            = Field(..., description="1 si es adulto mayor, 0 si no.")
-    Partner:        Literal["Yes", "No"]
-    Dependents:     Literal["Yes", "No"]
+    gender: Literal["Male", "Female"]
+    SeniorCitizen: Literal[0, 1] = Field(..., description="1 si es adulto mayor, 0 si no.")
+    Partner: Literal["Yes", "No"]
+    Dependents: Literal["Yes", "No"]
 
     # ── Servicios ─────────────────────────────────────────────────────────────
-    tenure:          int   = Field(..., ge=0, le=72, description="Meses de permanencia.")
-    PhoneService:    Literal["Yes", "No"]
-    MultipleLines:   Literal["Yes", "No", "No phone service"]
+    tenure: int = Field(..., ge=0, le=72, description="Meses de permanencia.")
+    PhoneService: Literal["Yes", "No"]
+    MultipleLines: Literal["Yes", "No", "No phone service"]
     InternetService: Literal["DSL", "Fiber optic", "No"]
-    OnlineSecurity:  Literal["Yes", "No", "No internet service"]
-    OnlineBackup:    Literal["Yes", "No", "No internet service"]
-    DeviceProtection:Literal["Yes", "No", "No internet service"]
-    TechSupport:     Literal["Yes", "No", "No internet service"]
-    StreamingTV:     Literal["Yes", "No", "No internet service"]
+    OnlineSecurity: Literal["Yes", "No", "No internet service"]
+    OnlineBackup: Literal["Yes", "No", "No internet service"]
+    DeviceProtection: Literal["Yes", "No", "No internet service"]
+    TechSupport: Literal["Yes", "No", "No internet service"]
+    StreamingTV: Literal["Yes", "No", "No internet service"]
     StreamingMovies: Literal["Yes", "No", "No internet service"]
 
     # ── Contrato y facturación ────────────────────────────────────────────────
-    Contract:        Literal["Month-to-month", "One year", "Two year"]
-    PaperlessBilling:Literal["Yes", "No"]
-    PaymentMethod:   Literal[
+    Contract: Literal["Month-to-month", "One year", "Two year"]
+    PaperlessBilling: Literal["Yes", "No"]
+    PaymentMethod: Literal[
         "Electronic check",
         "Mailed check",
         "Bank transfer (automatic)",
@@ -59,13 +59,13 @@ class CustomerInput(BaseModel):
 
     # ── Cargos ────────────────────────────────────────────────────────────────
     MonthlyCharges: float = Field(..., ge=0.0, description="Cargo mensual en USD.")
-    TotalCharges:   float = Field(..., ge=0.0, description="Cargo total acumulado en USD.")
+    TotalCharges: float = Field(..., ge=0.0, description="Cargo total acumulado en USD.")
 
     @field_validator("TotalCharges")
     @classmethod
     def total_gte_monthly(cls, v, info):
         monthly = info.data.get("MonthlyCharges", 0)
-        tenure  = info.data.get("tenure", 0)
+        tenure = info.data.get("tenure", 0)
         if tenure > 0 and v < monthly:
             raise ValueError(
                 f"TotalCharges ({v}) no puede ser menor que MonthlyCharges ({monthly}) "
@@ -113,12 +113,12 @@ class BatchInput(BaseModel):
 # =============================================================================
 
 class PredictionResponse(BaseModel):
-    model_used:        str   = Field(..., description="Nombre del modelo usado.")
-    churn_prediction:  int   = Field(..., description="0 = No Churn | 1 = Churn")
+    model_used: str = Field(..., description="Nombre del modelo usado.")
+    churn_prediction: int = Field(..., description="0 = No Churn | 1 = Churn")
     churn_probability: float = Field(..., description="Probabilidad de churn [0, 1]")
-    risk_label:        str   = Field(..., description="Low / Medium / High")
+    risk_label: str = Field(..., description="Low / Medium / High")
 
 
 class BatchResponse(BaseModel):
-    total:       int
+    total: int
     predictions: List[PredictionResponse]

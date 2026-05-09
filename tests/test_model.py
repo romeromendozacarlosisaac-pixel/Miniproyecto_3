@@ -15,7 +15,7 @@ MODEL_PATH = Path("app/model.joblib")
 
 # Umbrales mínimos de calidad aceptables para producción
 MIN_ROC_AUC = 0.78
-MIN_F1      = 0.55
+MIN_F1 = 0.55
 
 # Un cliente de ejemplo para pruebas de forma
 SAMPLE_INPUT = pd.DataFrame([{
@@ -131,4 +131,3 @@ class TestModelMetrics:
 
         preds = model.predict(X)
         assert len(set(preds)) > 1, "El modelo predice siempre la misma clase."
-        
