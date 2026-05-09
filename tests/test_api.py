@@ -7,7 +7,7 @@ import numpy as np
 from unittest.mock import MagicMock, patch
 from fastapi.testclient import TestClient
 
-# ── Fixtures de datos ─────────────────────────────────────────────────────────
+# ── Datos de prueba ───────────────────────────────────────────────────────────
 VALID_CUSTOMER = {
     "gender": "Female",
     "SeniorCitizen": 0,
@@ -42,73 +42,24 @@ MODEL_NAME = "random_forest"
 
 
 # =============================================================================
-# HELPERS
+# FIXTURES BASE
 # =============================================================================
 
-def make_mock_model(proba=None):
-    """Crea un modelo falso con probabilidades controladas."""
-    if proba is None:
-        proba = [0.3, 0.7]
+def make_mock(proba_class1=0.7):
     m = MagicMock()
-    m.predict_proba.return_value = np.array([proba])
+    m.predict_proba.return_value = np.array([[1 - proba_class1, proba_class1]])
     return m
 
 
-def make_client(models_dict):
+@pytest.fixture(scope="module")
+def app_with_real_models():
     """
-    Crea un TestClient parcheando joblib.load Y MODELS para que el lifespan
-    no toque disco y use únicamente los modelos del dict recibido.
+    Levanta la app UNA sola vez con los modelos reales para toda la suite.
+    Los tests que necesiten comportamiento controlado parchean MODELS inline.
     """
     from app.api import app
-
-    # Parcheamos joblib.load para que no lea .pkl reales
-    mock_loader = MagicMock(side_effect=lambda path: models_dict.get(
-        next((k for k, v in {
-            "random_forest": "rf_best.pkl",
-            "xgboost": "xgb_best.pkl",
-            "catboost": "cb_best.pkl",
-            "lightgbm": "lgbm_best.pkl",
-        }.items() if v in path), None),
-        None,
-    ))
-
-    with patch("app.api.joblib.load", mock_loader):
-        with patch("app.api.MODEL_FILES", {k: f"{k}.pkl" for k in models_dict}):
-            with TestClient(app) as c:
-                yield c
-
-
-# =============================================================================
-# FIXTURES
-# =============================================================================
-
-@pytest.fixture
-def mock_model():
-    return make_mock_model([0.3, 0.7])
-
-
-@pytest.fixture
-def client(mock_model):
-    """Cliente con un modelo mockeado cargado."""
-    yield from make_client({MODEL_NAME: mock_model})
-
-
-@pytest.fixture
-def client_no_models():
-    """Cliente sin ningún modelo disponible."""
-    from app.api import app
-    # MODEL_FILES vacío → lifespan no carga nada → lanza RuntimeError
-    # Lo capturamos para que el cliente arranque igualmente con MODELS vacío
-    with patch("app.api.MODEL_FILES", {}):
-        with patch("app.api.MODELS", {}):
-            # Evitamos el RuntimeError del lifespan parcheando la condición
-            with patch("app.api.MODELS", {}) as mock_models:
-                mock_models.clear()
-                # Arrancamos sin lifespan ejecutando el app directamente
-                with TestClient(app, raise_server_exceptions=False) as c:
-                    # Forzamos MODELS vacío después del arranque
-                    with patch("app.api.MODELS", {}):
-                        yield c
+    with TestClient(app) as client:
+        yield client
 
 
 # =============================================================================
@@ -117,28 +68,29 @@ def client_no_models():
 
 class TestHealth:
 
-    def test_root_returns_ok(self, client):
-        response = client.get("/")
+    def test_root_returns_ok(self, app_with_real_models):
+        response = app_with_real_models.get("/")
         assert response.status_code == 200
         assert response.json()["status"] == "ok"
 
-    def test_health_model_loaded(self, client):
-        response = client.get("/health")
+    def test_health_model_loaded(self, app_with_real_models):
+        response = app_with_real_models.get("/health")
         assert response.status_code == 200
         assert response.json()["status"] == "healthy"
 
-    def test_health_model_not_loaded(self):
-        """Sin modelo cargado debe retornar 503."""
-        from app.api import app
-        with patch("app.api.MODEL_FILES", {}):
-            with patch("app.api.MODELS", {}):
-                with TestClient(app, raise_server_exceptions=False) as c:
-                    with patch("app.api.MODELS", {}):
-                        response = c.get("/health")
-        assert response.status_code == 503
+    def test_health_model_not_loaded(self, app_with_real_models):
+        """Simula MODELS vacío parcheando durante la request."""
+        import app.api as api_module
+        original = dict(api_module.MODELS)
+        api_module.MODELS.clear()
+        try:
+            response = app_with_real_models.get("/health")
+            assert response.status_code == 503
+        finally:
+            api_module.MODELS.update(original)
 
-    def test_list_models(self, client):
-        response = client.get("/models")
+    def test_list_models(self, app_with_real_models):
+        response = app_with_real_models.get("/models")
         assert response.status_code == 200
         assert MODEL_NAME in response.json()["modelos_disponibles"]
 
@@ -149,77 +101,108 @@ class TestHealth:
 
 class TestPredict:
 
-    def test_predict_valid_customer_returns_200(self, client):
-        response = client.post(f"/predict/{MODEL_NAME}", json=VALID_CUSTOMER)
+    def test_predict_valid_customer_returns_200(self, app_with_real_models):
+        response = app_with_real_models.post(
+            f"/predict/{MODEL_NAME}", json=VALID_CUSTOMER
+        )
         assert response.status_code == 200
 
-    def test_predict_response_schema(self, client):
-        response = client.post(f"/predict/{MODEL_NAME}", json=VALID_CUSTOMER)
+    def test_predict_response_schema(self, app_with_real_models):
+        response = app_with_real_models.post(
+            f"/predict/{MODEL_NAME}", json=VALID_CUSTOMER
+        )
         data = response.json()
         assert "churn_prediction" in data
         assert "churn_probability" in data
         assert "risk_label" in data
         assert "model_used" in data
 
-    def test_predict_churn_prediction_is_binary(self, client):
-        response = client.post(f"/predict/{MODEL_NAME}", json=VALID_CUSTOMER)
-        pred = response.json()["churn_prediction"]
-        assert pred in [0, 1]
+    def test_predict_churn_prediction_is_binary(self, app_with_real_models):
+        response = app_with_real_models.post(
+            f"/predict/{MODEL_NAME}", json=VALID_CUSTOMER
+        )
+        assert response.json()["churn_prediction"] in [0, 1]
 
-    def test_predict_probability_in_range(self, client):
-        response = client.post(f"/predict/{MODEL_NAME}", json=VALID_CUSTOMER)
+    def test_predict_probability_in_range(self, app_with_real_models):
+        response = app_with_real_models.post(
+            f"/predict/{MODEL_NAME}", json=VALID_CUSTOMER
+        )
         prob = response.json()["churn_probability"]
         assert 0.0 <= prob <= 1.0
 
-    def test_predict_risk_label_high(self, client):
-        """Con 70% de probabilidad debe retornar High."""
-        response = client.post(f"/predict/{MODEL_NAME}", json=VALID_CUSTOMER)
-        assert response.json()["risk_label"] == "High"
+    def test_predict_risk_label_high(self, app_with_real_models):
+        """Inyecta mock con 80% churn → debe retornar High."""
+        import app.api as api_module
+        original = dict(api_module.MODELS)
+        api_module.MODELS[MODEL_NAME] = make_mock(0.80)
+        try:
+            response = app_with_real_models.post(
+                f"/predict/{MODEL_NAME}", json=VALID_CUSTOMER
+            )
+            assert response.json()["risk_label"] == "High"
+        finally:
+            api_module.MODELS.update(original)
 
-    def test_predict_risk_label_low(self):
-        """Con 20% de probabilidad debe retornar Low."""
-        m = make_mock_model([0.8, 0.2])
-        gen = make_client({MODEL_NAME: m})
-        c = next(gen)
-        response = c.post(f"/predict/{MODEL_NAME}", json=LOW_RISK_CUSTOMER)
-        assert response.json()["risk_label"] == "Low"
+    def test_predict_risk_label_low(self, app_with_real_models):
+        """Inyecta mock con 20% churn → debe retornar Low."""
+        import app.api as api_module
+        original = dict(api_module.MODELS)
+        api_module.MODELS[MODEL_NAME] = make_mock(0.20)
+        try:
+            response = app_with_real_models.post(
+                f"/predict/{MODEL_NAME}", json=LOW_RISK_CUSTOMER
+            )
+            assert response.json()["risk_label"] == "Low"
+        finally:
+            api_module.MODELS.update(original)
 
-    def test_predict_risk_label_medium(self):
-        """Con 50% de probabilidad debe retornar Medium."""
-        m = make_mock_model([0.5, 0.5])
-        gen = make_client({MODEL_NAME: m})
-        c = next(gen)
-        response = c.post(f"/predict/{MODEL_NAME}", json=VALID_CUSTOMER)
-        assert response.json()["risk_label"] == "Medium"
+    def test_predict_risk_label_medium(self, app_with_real_models):
+        """Inyecta mock con 50% churn → debe retornar Medium."""
+        import app.api as api_module
+        original = dict(api_module.MODELS)
+        api_module.MODELS[MODEL_NAME] = make_mock(0.50)
+        try:
+            response = app_with_real_models.post(
+                f"/predict/{MODEL_NAME}", json=VALID_CUSTOMER
+            )
+            assert response.json()["risk_label"] == "Medium"
+        finally:
+            api_module.MODELS.update(original)
 
-    def test_predict_missing_field_returns_422(self, client):
-        """Un campo requerido faltante debe retornar 422."""
+    def test_predict_missing_field_returns_422(self, app_with_real_models):
         incomplete = {k: v for k, v in VALID_CUSTOMER.items() if k != "tenure"}
-        response = client.post(f"/predict/{MODEL_NAME}", json=incomplete)
+        response = app_with_real_models.post(
+            f"/predict/{MODEL_NAME}", json=incomplete
+        )
         assert response.status_code == 422
 
-    def test_predict_invalid_gender_returns_422(self, client):
+    def test_predict_invalid_gender_returns_422(self, app_with_real_models):
         bad = {**VALID_CUSTOMER, "gender": "Unknown"}
-        response = client.post(f"/predict/{MODEL_NAME}", json=bad)
+        response = app_with_real_models.post(f"/predict/{MODEL_NAME}", json=bad)
         assert response.status_code == 422
 
-    def test_predict_negative_tenure_returns_422(self, client):
+    def test_predict_negative_tenure_returns_422(self, app_with_real_models):
         bad = {**VALID_CUSTOMER, "tenure": -5}
-        response = client.post(f"/predict/{MODEL_NAME}", json=bad)
+        response = app_with_real_models.post(f"/predict/{MODEL_NAME}", json=bad)
         assert response.status_code == 422
 
-    def test_predict_model_unavailable_returns_503(self):
-        """Sin modelos cargados debe retornar 503."""
-        from app.api import app
-        with patch("app.api.MODEL_FILES", {}):
-            with TestClient(app, raise_server_exceptions=False) as c:
-                with patch("app.api.MODELS", {}):
-                    response = c.post(f"/predict/{MODEL_NAME}", json=VALID_CUSTOMER)
-        assert response.status_code == 503
+    def test_predict_model_unavailable_returns_503(self, app_with_real_models):
+        """Vacía MODELS durante la request → debe retornar 503."""
+        import app.api as api_module
+        original = dict(api_module.MODELS)
+        api_module.MODELS.clear()
+        try:
+            response = app_with_real_models.post(
+                f"/predict/{MODEL_NAME}", json=VALID_CUSTOMER
+            )
+            assert response.status_code == 503
+        finally:
+            api_module.MODELS.update(original)
 
-    def test_predict_unknown_model_returns_422(self, client):
-        """Un modelo fuera del enum debe retornar 422."""
-        response = client.post("/predict/nonexistent_model", json=VALID_CUSTOMER)
+    def test_predict_unknown_model_returns_422(self, app_with_real_models):
+        response = app_with_real_models.post(
+            "/predict/nonexistent_model", json=VALID_CUSTOMER
+        )
         assert response.status_code == 422
 
 
@@ -229,35 +212,37 @@ class TestPredict:
 
 class TestPredictBatch:
 
-    def test_batch_valid_returns_200(self):
-        m = make_mock_model([0.3, 0.7])
-        m.predict_proba.return_value = np.array([[0.3, 0.7], [0.8, 0.2]])
-        gen = make_client({MODEL_NAME: m})
-        c = next(gen)
+    def test_batch_valid_returns_200(self, app_with_real_models):
         payload = {"customers": [VALID_CUSTOMER, LOW_RISK_CUSTOMER]}
-        response = c.post(f"/predict/batch/{MODEL_NAME}", json=payload)
+        response = app_with_real_models.post(
+            f"/predict/batch/{MODEL_NAME}", json=payload
+        )
         assert response.status_code == 200
 
-    def test_batch_total_matches_input(self):
-        m = make_mock_model([0.3, 0.7])
-        m.predict_proba.return_value = np.array([[0.3, 0.7], [0.8, 0.2]])
-        gen = make_client({MODEL_NAME: m})
-        c = next(gen)
+    def test_batch_total_matches_input(self, app_with_real_models):
         payload = {"customers": [VALID_CUSTOMER, LOW_RISK_CUSTOMER]}
-        data = c.post(f"/predict/batch/{MODEL_NAME}", json=payload).json()
+        data = app_with_real_models.post(
+            f"/predict/batch/{MODEL_NAME}", json=payload
+        ).json()
         assert data["total"] == 2
         assert len(data["predictions"]) == 2
 
-    def test_batch_empty_list_returns_422(self, client):
-        response = client.post(f"/predict/batch/{MODEL_NAME}", json={"customers": []})
+    def test_batch_empty_list_returns_422(self, app_with_real_models):
+        response = app_with_real_models.post(
+            f"/predict/batch/{MODEL_NAME}", json={"customers": []}
+        )
         assert response.status_code == 422
 
-    def test_batch_model_unavailable_returns_503(self):
-        """Sin modelos cargados debe retornar 503."""
-        from app.api import app
-        with patch("app.api.MODEL_FILES", {}):
-            with TestClient(app, raise_server_exceptions=False) as c:
-                with patch("app.api.MODELS", {}):
-                    payload = {"customers": [VALID_CUSTOMER]}
-                    response = c.post(f"/predict/batch/{MODEL_NAME}", json=payload)
-        assert response.status_code == 503
+    def test_batch_model_unavailable_returns_503(self, app_with_real_models):
+        """Vacía MODELS durante la request → debe retornar 503."""
+        import app.api as api_module
+        original = dict(api_module.MODELS)
+        api_module.MODELS.clear()
+        try:
+            payload = {"customers": [VALID_CUSTOMER]}
+            response = app_with_real_models.post(
+                f"/predict/batch/{MODEL_NAME}", json=payload
+            )
+            assert response.status_code == 503
+        finally:
+            api_module.MODELS.update(original)
