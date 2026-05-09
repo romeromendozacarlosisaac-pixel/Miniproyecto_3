@@ -1,0 +1,19 @@
+# Entornos virtuales
+venv/
+.env
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.ipynb_checkpoints/
+
+# Jupyter
+.jupyter/
+
+# Datos pesados (el CSV no se sube a GitHub)
+data/telco_churn.csv
+
+# IDEs
+.vscode/
+.idea/

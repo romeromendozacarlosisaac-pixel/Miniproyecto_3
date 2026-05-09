@@ -1,0 +1,140 @@
+# =============================================================================
+# TELCO CUSTOMER CHURN — CI/CD con GitHub Actions
+# =============================================================================
+# Flujo:
+#   1. Linting con flake8
+#   2. Pruebas unitarias con pytest
+#   3. Build y publicación de imagen Docker (solo en push a main)
+# =============================================================================
+
+name: CI/CD Pipeline — Telco Churn
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+env:
+  IMAGE_NAME: telco-churn-api
+  REGISTRY: ghcr.io                          # GitHub Container Registry
+  IMAGE_FULL: ghcr.io/${{ github.repository_owner }}/telco-churn-api
+
+jobs:
+
+  # ════════════════════════════════════════════════════════════════════════════
+  # JOB 1 — CALIDAD DE CÓDIGO (linting)
+  # ════════════════════════════════════════════════════════════════════════════
+  lint:
+    name: Linting (flake8)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      - name: Configurar Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Instalar flake8
+        run: pip install flake8
+
+      - name: Ejecutar flake8
+        run: |
+          flake8 app/ tests/ \
+            --max-line-length=100 \
+            --exclude=__pycache__ \
+            --statistics
+
+
+  # ════════════════════════════════════════════════════════════════════════════
+  # JOB 2 — PRUEBAS UNITARIAS
+  # ════════════════════════════════════════════════════════════════════════════
+  test:
+    name: Pruebas Unitarias (pytest)
+    runs-on: ubuntu-latest
+    needs: lint                              # Solo corre si lint pasa
+
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      - name: Configurar Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Instalar dependencias
+        run: pip install -r requirements.txt
+
+      - name: Ejecutar pruebas unitarias
+        run: |
+          pytest tests/ \
+            --ignore=tests/test_model.py \   # test_model requiere pkl en disco
+            -v \
+            --tb=short \
+            --junitxml=reports/test-results.xml
+
+      - name: Publicar reporte de pruebas
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results
+          path: reports/test-results.xml
+
+
+  # ════════════════════════════════════════════════════════════════════════════
+  # JOB 3 — BUILD Y PUBLICACIÓN DE IMAGEN DOCKER
+  # Solo se ejecuta en push a main y si las pruebas pasan
+  # ════════════════════════════════════════════════════════════════════════════
+  docker:
+    name: Build & Push Docker Image
+    runs-on: ubuntu-latest
+    needs: test
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    permissions:
+      contents: read
+      packages: write              # Necesario para publicar en ghcr.io
+
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      - name: Configurar Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login en GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extraer metadatos de la imagen
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.IMAGE_FULL }}
+          tags: |
+            type=sha,prefix=sha-
+            type=raw,value=latest
+
+      - name: Build y Push imagen
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Resumen del build
+        run: |
+          echo "### Imagen publicada" >> $GITHUB_STEP_SUMMARY
+          echo "**Tags:** ${{ steps.meta.outputs.tags }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
