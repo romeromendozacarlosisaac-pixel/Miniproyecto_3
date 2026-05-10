@@ -150,13 +150,10 @@ cd Miniproyecto_3
 
 ```bash
 #Crear el entorno
-python -m venv venv
+conda create -n miniproyecto3 python=3.11 -y
 
-#Activar en Windows
-venv\Scripts\activate
-
-#Activar en macOS / Linux
-source venv/bin/activate
+#Activar entorno
+conda activate miniproyecto3
 ```
 
 Una vez activado, el prompt mostrará `(venv)` al inicio.
