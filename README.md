@@ -143,7 +143,7 @@ Utilizando Bash:
 
 ```bash
 git clone https://github.com/romeromendozacarlosisaac-pixel/Miniproyecto_3.git
-cd telco-churn-mlops
+cd Miniproyecto_3
 ```
 
 ### Paso 2 — Crear y activar el entorno virtual
