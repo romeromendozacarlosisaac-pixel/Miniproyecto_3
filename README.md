@@ -142,7 +142,7 @@ Esta opción requiere clonar el repositorio y tener Python 3.11 instalado.
 Utilizando Bash:
 
 ```bash
-git clone https://github.com/romeromendozacarlosisaac-pixel/telco-churn-mlops.git
+git clone https://github.com/romeromendozacarlosisaac-pixel/Miniproyecto_3.git
 cd telco-churn-mlops
 ```
 
