@@ -225,9 +225,6 @@ Para detener el servidor: `CTRL + C`.
 ```bash
 #Pruebas de API (no requieren modelos en disco)
 pytest tests/test_api.py -v
-
-#Pruebas de modelo (requieren data/models/*.pkl y data/telco_churn.csv)
-pytest tests/test_model.py -v
 ```
 
 ---
