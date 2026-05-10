@@ -169,7 +169,7 @@ pip install -r requirements.txt
 ```
 
 ### Paso 4 — Levantar el servicio
-
+En otra terminal, ejecutar:
 ```bash
 uvicorn app.api:app --reload --port 8000
 ```
@@ -180,6 +180,44 @@ Igual que en la Opción A, abre el navegador en:
 
 ```
 http://localhost:8000/docs
+```
+Por otro lado, si se desea probar localmente, solo basta con ingresar la entrada en la terminal principal, por ejemplo:
+
+```
+Invoke-WebRequest -Uri http://localhost:8000/predict/xgboost `
+  -Method POST `
+  -ContentType "application/json" `
+  -UseBasicParsing `
+  -Body '{
+    "gender": "Female",
+    "SeniorCitizen": 0,
+    "Partner": "Yes",
+    "Dependents": "No",
+    "tenure": 12,
+    "PhoneService": "Yes",
+    "MultipleLines": "No",
+    "InternetService": "Fiber optic",
+    "OnlineSecurity": "No",
+    "OnlineBackup": "No",
+    "DeviceProtection": "No",
+    "TechSupport": "No",
+    "StreamingTV": "Yes",
+    "StreamingMovies": "Yes",
+    "Contract": "Month-to-month",
+    "PaperlessBilling": "Yes",
+    "PaymentMethod": "Electronic check",
+    "MonthlyCharges": 85.50,
+    "TotalCharges": 1026.0
+  }' | Select-Object -ExpandProperty Content
+```
+
+La salida esperada es:
+
+```
+{"model_used":"xgboost",
+"churn_prediction":1,
+"churn_probability":0.8417,
+"risk_label":"High"}
 ```
 
 Para detener el servidor: `CTRL + C`.
