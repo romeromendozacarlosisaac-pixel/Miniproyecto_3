@@ -161,7 +161,6 @@ Una vez activado, el prompt mostrará `(venv)` al inicio.
 ### Paso 3 — Instalar dependencias
 
 ```bash
-pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
