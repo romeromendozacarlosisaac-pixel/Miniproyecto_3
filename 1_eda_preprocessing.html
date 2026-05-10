@@ -1,0 +1,3267 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="./" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Análisis exploratorio de Datos &#8212; Telco Customer Churn — Proyecto ML</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="_static/togglebutton.css?v=13237357" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css?v=6644e6bb" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-thebe.css?v=4fa983c6" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="_static/copybutton.js?v=f281be69"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="_static/togglebutton.js?v=4a39c7ea"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="_static/design-tabs.js?v=f930bc37"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script async="async" src="_static/sphinx-thebe.js?v=c100c467"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '1_eda_preprocessing';</script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Evaluación del modelo" href="2_model_training.html" />
+    <link rel="prev" title="Telco Customer Churn — Proyecto ML" href="intro.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="intro.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">Telco Customer Churn — Proyecto ML</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="intro.html">
+                    Telco Customer Churn — Proyecto ML
+                </a>
+            </li>
+        </ul>
+        <ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">1. Análisis Exploratorio y Preprocesamiento</a></li>
+<li class="toctree-l1"><a class="reference internal" href="2_model_training.html">2. Entrenamiento y Evaluación de Modelos</a></li>
+<li class="toctree-l1"><a class="reference internal" href="3_interpretability.html">Importancia de características</a></li>
+
+
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+<a href="https://github.com/romeromendozacarlosisaac-pixel/telco-churn-mlops" target="_blank"
+   class="btn btn-sm btn-source-repository-button"
+   title="Source repository"
+   data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+
+</a>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="_sources/1_eda_preprocessing.ipynb" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.ipynb</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Análisis exploratorio de Datos</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#descripcion-del-dataset">Descripción del dataset</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#carga-del-dataset">Carga del dataset</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#diccionario-de-variables">Diccionario de Variables</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#analisis-univariado">Análisis univariado</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#variables-categoricas">Variables Categóricas</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#churn">Churn</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#gender">Gender</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#partner">Partner</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#dependents">Dependents</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#phoneservice">PhoneService</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#multiplelines">MultipleLines</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#internetservice">InternetService</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#onlinesecurity">OnlineSecurity</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#onlinebackup">OnlineBackup</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceprotection">DeviceProtection</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#techsupport">TechSupport</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#streamingtv">StreamingTV</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#streamingmovies">StreamingMovies</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#contract">Contract</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#paperlessbilling">PaperlessBilling</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#paymentmethod">PaymentMethod</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#totalcharges">TotalCharges</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#variables-numericas">Variables Númericas</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#senior-citizen">Senior Citizen</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#preprocesamiento-y-deteccion-de-data-leakage">Preprocesamiento y detección de Data Leakage</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="analisis-exploratorio-de-datos">
+<h1>Análisis exploratorio de Datos<a class="headerlink" href="#analisis-exploratorio-de-datos" title="Link to this heading">#</a></h1>
+<section id="descripcion-del-dataset">
+<h2>Descripción del dataset<a class="headerlink" href="#descripcion-del-dataset" title="Link to this heading">#</a></h2>
+<p>El conjunto de datos está estructurado a nivel de cliente, donde cada fila representa un cliente individual y cada columna describe un atributo específico relacionado con su perfil, servicios contratados y comportamiento.</p>
+<p>La variable objetivo del análisis es ‘Churn’, que indica si el cliente abandonó el servicio en el último mes (Yes/No).</p>
+<ul class="simple">
+<li><p><strong>Fuente:</strong> <a class="reference external" href="https://www.kaggle.com/blastchar/telco-customer-churn">https://www.kaggle.com/blastchar/telco-customer-churn</a></p></li>
+</ul>
+</section>
+<section id="carga-del-dataset">
+<h2>Carga del dataset<a class="headerlink" href="#carga-del-dataset" title="Link to this heading">#</a></h2>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#Carga de librerias  </span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.svm</span><span class="w"> </span><span class="kn">import</span> <span class="n">SVC</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">Pipeline</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">roc_auc_score</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.preprocessing</span><span class="w"> </span><span class="kn">import</span> <span class="n">MinMaxScaler</span><span class="p">,</span> <span class="n">OneHotEncoder</span><span class="p">,</span> <span class="n">StandardScaler</span><span class="p">,</span> <span class="n">OrdinalEncoder</span><span class="p">,</span> <span class="n">LabelEncoder</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.compose</span><span class="w"> </span><span class="kn">import</span> <span class="n">ColumnTransformer</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.linear_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">LogisticRegression</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.ensemble</span><span class="w"> </span><span class="kn">import</span> <span class="n">RandomForestClassifier</span><span class="p">,</span> <span class="n">GradientBoostingClassifier</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.neighbors</span><span class="w"> </span><span class="kn">import</span> <span class="n">KNeighborsClassifier</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.model_selection</span><span class="w"> </span><span class="kn">import</span> <span class="n">GridSearchCV</span><span class="p">,</span> <span class="n">train_test_split</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">roc_auc_score</span><span class="p">,</span> <span class="n">f1_score</span><span class="p">,</span> <span class="n">precision_score</span><span class="p">,</span>
+    <span class="n">recall_score</span><span class="p">,</span> <span class="n">accuracy_score</span><span class="p">,</span> <span class="n">classification_report</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.feature_selection</span><span class="w"> </span><span class="kn">import</span> <span class="n">SelectKBest</span><span class="p">,</span> <span class="n">f_classif</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">seaborn</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sns</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+<span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s2">&quot;ignore&quot;</span><span class="p">)</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.model_selection</span><span class="w"> </span><span class="kn">import</span> <span class="n">train_test_split</span><span class="p">,</span> <span class="n">GridSearchCV</span><span class="p">,</span> <span class="n">StratifiedKFold</span><span class="p">,</span> <span class="n">cross_val_score</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">classification_report</span><span class="p">,</span> <span class="n">roc_auc_score</span><span class="p">,</span> <span class="n">f1_score</span><span class="p">,</span> <span class="n">make_scorer</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.ensemble</span><span class="w"> </span><span class="kn">import</span> <span class="n">RandomForestClassifier</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">xgboost</span><span class="w"> </span><span class="kn">import</span> <span class="n">XGBClassifier</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">catboost</span><span class="w"> </span><span class="kn">import</span> <span class="n">CatBoostClassifier</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">lightgbm</span><span class="w"> </span><span class="kn">import</span> <span class="n">LGBMClassifier</span>
+
+
+
+<span class="c1">#Carga de datos  </span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&quot;../data/telco_churn.csv&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Una vez cargado, analicemos la información básica del dataset:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#Información básica del dataset</span>
+<span class="n">df</span><span class="o">.</span><span class="n">info</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;class &#39;pandas.core.frame.DataFrame&#39;&gt;
+RangeIndex: 7043 entries, 0 to 7042
+Data columns (total 21 columns):
+ #   Column            Non-Null Count  Dtype  
+---  ------            --------------  -----  
+ 0   customerID        7043 non-null   object 
+ 1   gender            7043 non-null   object 
+ 2   SeniorCitizen     7043 non-null   int64  
+ 3   Partner           7043 non-null   object 
+ 4   Dependents        7043 non-null   object 
+ 5   tenure            7043 non-null   int64  
+ 6   PhoneService      7043 non-null   object 
+ 7   MultipleLines     7043 non-null   object 
+ 8   InternetService   7043 non-null   object 
+ 9   OnlineSecurity    7043 non-null   object 
+ 10  OnlineBackup      7043 non-null   object 
+ 11  DeviceProtection  7043 non-null   object 
+ 12  TechSupport       7043 non-null   object 
+ 13  StreamingTV       7043 non-null   object 
+ 14  StreamingMovies   7043 non-null   object 
+ 15  Contract          7043 non-null   object 
+ 16  PaperlessBilling  7043 non-null   object 
+ 17  PaymentMethod     7043 non-null   object 
+ 18  MonthlyCharges    7043 non-null   float64
+ 19  TotalCharges      7043 non-null   object 
+ 20  Churn             7043 non-null   object 
+dtypes: float64(1), int64(2), object(18)
+memory usage: 1.1+ MB
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#dimensiones</span>
+<span class="n">df</span><span class="o">.</span><span class="n">shape</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(7043, 21)
+</pre></div>
+</div>
+</div>
+</div>
+<p>Se cuenta con una cantidad de 7043 observaciones, cada observación representando a un cliente, caracterizadas por 21 variables, 3 Númericas y 18 categóricas, que describen los atributos de dicho cliente. Procedamos a construir un diccionario que contenga las variables:</p>
+</section>
+<section id="diccionario-de-variables">
+<h2>Diccionario de Variables<a class="headerlink" href="#diccionario-de-variables" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Variable</p></th>
+<th class="head"><p>Tipo de Dato</p></th>
+<th class="head"><p>Descripción</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>customerID</p></td>
+<td><p>object</p></td>
+<td><p>Identificador único del cliente.</p></td>
+</tr>
+<tr class="row-odd"><td><p>gender</p></td>
+<td><p>object</p></td>
+<td><p>Género del cliente (Male / Female).</p></td>
+</tr>
+<tr class="row-even"><td><p>SeniorCitizen</p></td>
+<td><p>int64</p></td>
+<td><p>Indica si el cliente es adulto mayor (1 = Sí, 0 = No).</p></td>
+</tr>
+<tr class="row-odd"><td><p>Partner</p></td>
+<td><p>object</p></td>
+<td><p>Indica si el cliente tiene pareja (Yes / No).</p></td>
+</tr>
+<tr class="row-even"><td><p>Dependents</p></td>
+<td><p>object</p></td>
+<td><p>Indica si el cliente tiene dependientes (Yes / No).</p></td>
+</tr>
+<tr class="row-odd"><td><p>tenure</p></td>
+<td><p>int64</p></td>
+<td><p>Número de meses que el cliente ha permanecido con la compañía.</p></td>
+</tr>
+<tr class="row-even"><td><p>PhoneService</p></td>
+<td><p>object</p></td>
+<td><p>Indica si el cliente tiene servicio telefónico (Yes / No).</p></td>
+</tr>
+<tr class="row-odd"><td><p>MultipleLines</p></td>
+<td><p>object</p></td>
+<td><p>Indica si el cliente tiene múltiples líneas telefónicas (Yes / No / No phone service).</p></td>
+</tr>
+<tr class="row-even"><td><p>InternetService</p></td>
+<td><p>object</p></td>
+<td><p>Tipo de servicio de internet contratado (DSL / Fiber optic / No).</p></td>
+</tr>
+<tr class="row-odd"><td><p>OnlineSecurity</p></td>
+<td><p>object</p></td>
+<td><p>Indica si el cliente tiene servicio de seguridad en línea (Yes / No / No internet service).</p></td>
+</tr>
+<tr class="row-even"><td><p>OnlineBackup</p></td>
+<td><p>object</p></td>
+<td><p>Indica si el cliente tiene servicio de respaldo en línea (Yes / No / No internet service).</p></td>
+</tr>
+<tr class="row-odd"><td><p>DeviceProtection</p></td>
+<td><p>object</p></td>
+<td><p>Indica si el cliente tiene protección de dispositivos (Yes / No / No internet service).</p></td>
+</tr>
+<tr class="row-even"><td><p>TechSupport</p></td>
+<td><p>object</p></td>
+<td><p>Indica si el cliente tiene soporte técnico (Yes / No / No internet service).</p></td>
+</tr>
+<tr class="row-odd"><td><p>StreamingTV</p></td>
+<td><p>object</p></td>
+<td><p>Indica si el cliente tiene servicio de streaming de TV (Yes / No / No internet service).</p></td>
+</tr>
+<tr class="row-even"><td><p>StreamingMovies</p></td>
+<td><p>object</p></td>
+<td><p>Indica si el cliente tiene servicio de streaming de películas (Yes / No / No internet service).</p></td>
+</tr>
+<tr class="row-odd"><td><p>Contract</p></td>
+<td><p>object</p></td>
+<td><p>Tipo de contrato del cliente (Month-to-month / One year / Two year).</p></td>
+</tr>
+<tr class="row-even"><td><p>PaperlessBilling</p></td>
+<td><p>object</p></td>
+<td><p>Indica si el cliente utiliza facturación electrónica (Yes / No).</p></td>
+</tr>
+<tr class="row-odd"><td><p>PaymentMethod</p></td>
+<td><p>object</p></td>
+<td><p>Método de pago del cliente (Electronic check, Mailed check, Bank transfer, Credit card).</p></td>
+</tr>
+<tr class="row-even"><td><p>MonthlyCharges</p></td>
+<td><p>float64</p></td>
+<td><p>Cargos mensuales del cliente.</p></td>
+</tr>
+<tr class="row-odd"><td><p>TotalCharges</p></td>
+<td><p>object</p></td>
+<td><p>Cargos totales acumulados por el cliente (puede requerir conversión a numérico).</p></td>
+</tr>
+<tr class="row-even"><td><p>Churn</p></td>
+<td><p>object</p></td>
+<td><p>Variable objetivo: indica si el cliente abandonó la compañía (Yes / No).</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Se visualizaran las primeras 10 filas del dataset para familiarizarse con su estructura:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">df</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>customerID</th>
+      <th>gender</th>
+      <th>SeniorCitizen</th>
+      <th>Partner</th>
+      <th>Dependents</th>
+      <th>tenure</th>
+      <th>PhoneService</th>
+      <th>MultipleLines</th>
+      <th>InternetService</th>
+      <th>OnlineSecurity</th>
+      <th>...</th>
+      <th>DeviceProtection</th>
+      <th>TechSupport</th>
+      <th>StreamingTV</th>
+      <th>StreamingMovies</th>
+      <th>Contract</th>
+      <th>PaperlessBilling</th>
+      <th>PaymentMethod</th>
+      <th>MonthlyCharges</th>
+      <th>TotalCharges</th>
+      <th>Churn</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>7590-VHVEG</td>
+      <td>Female</td>
+      <td>0</td>
+      <td>Yes</td>
+      <td>No</td>
+      <td>1</td>
+      <td>No</td>
+      <td>No phone service</td>
+      <td>DSL</td>
+      <td>No</td>
+      <td>...</td>
+      <td>No</td>
+      <td>No</td>
+      <td>No</td>
+      <td>No</td>
+      <td>Month-to-month</td>
+      <td>Yes</td>
+      <td>Electronic check</td>
+      <td>29.85</td>
+      <td>29.85</td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>5575-GNVDE</td>
+      <td>Male</td>
+      <td>0</td>
+      <td>No</td>
+      <td>No</td>
+      <td>34</td>
+      <td>Yes</td>
+      <td>No</td>
+      <td>DSL</td>
+      <td>Yes</td>
+      <td>...</td>
+      <td>Yes</td>
+      <td>No</td>
+      <td>No</td>
+      <td>No</td>
+      <td>One year</td>
+      <td>No</td>
+      <td>Mailed check</td>
+      <td>56.95</td>
+      <td>1889.5</td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>3668-QPYBK</td>
+      <td>Male</td>
+      <td>0</td>
+      <td>No</td>
+      <td>No</td>
+      <td>2</td>
+      <td>Yes</td>
+      <td>No</td>
+      <td>DSL</td>
+      <td>Yes</td>
+      <td>...</td>
+      <td>No</td>
+      <td>No</td>
+      <td>No</td>
+      <td>No</td>
+      <td>Month-to-month</td>
+      <td>Yes</td>
+      <td>Mailed check</td>
+      <td>53.85</td>
+      <td>108.15</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>7795-CFOCW</td>
+      <td>Male</td>
+      <td>0</td>
+      <td>No</td>
+      <td>No</td>
+      <td>45</td>
+      <td>No</td>
+      <td>No phone service</td>
+      <td>DSL</td>
+      <td>Yes</td>
+      <td>...</td>
+      <td>Yes</td>
+      <td>Yes</td>
+      <td>No</td>
+      <td>No</td>
+      <td>One year</td>
+      <td>No</td>
+      <td>Bank transfer (automatic)</td>
+      <td>42.30</td>
+      <td>1840.75</td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>9237-HQITU</td>
+      <td>Female</td>
+      <td>0</td>
+      <td>No</td>
+      <td>No</td>
+      <td>2</td>
+      <td>Yes</td>
+      <td>No</td>
+      <td>Fiber optic</td>
+      <td>No</td>
+      <td>...</td>
+      <td>No</td>
+      <td>No</td>
+      <td>No</td>
+      <td>No</td>
+      <td>Month-to-month</td>
+      <td>Yes</td>
+      <td>Electronic check</td>
+      <td>70.70</td>
+      <td>151.65</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>9305-CDSKC</td>
+      <td>Female</td>
+      <td>0</td>
+      <td>No</td>
+      <td>No</td>
+      <td>8</td>
+      <td>Yes</td>
+      <td>Yes</td>
+      <td>Fiber optic</td>
+      <td>No</td>
+      <td>...</td>
+      <td>Yes</td>
+      <td>No</td>
+      <td>Yes</td>
+      <td>Yes</td>
+      <td>Month-to-month</td>
+      <td>Yes</td>
+      <td>Electronic check</td>
+      <td>99.65</td>
+      <td>820.5</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>1452-KIOVK</td>
+      <td>Male</td>
+      <td>0</td>
+      <td>No</td>
+      <td>Yes</td>
+      <td>22</td>
+      <td>Yes</td>
+      <td>Yes</td>
+      <td>Fiber optic</td>
+      <td>No</td>
+      <td>...</td>
+      <td>No</td>
+      <td>No</td>
+      <td>Yes</td>
+      <td>No</td>
+      <td>Month-to-month</td>
+      <td>Yes</td>
+      <td>Credit card (automatic)</td>
+      <td>89.10</td>
+      <td>1949.4</td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>6713-OKOMC</td>
+      <td>Female</td>
+      <td>0</td>
+      <td>No</td>
+      <td>No</td>
+      <td>10</td>
+      <td>No</td>
+      <td>No phone service</td>
+      <td>DSL</td>
+      <td>Yes</td>
+      <td>...</td>
+      <td>No</td>
+      <td>No</td>
+      <td>No</td>
+      <td>No</td>
+      <td>Month-to-month</td>
+      <td>No</td>
+      <td>Mailed check</td>
+      <td>29.75</td>
+      <td>301.9</td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>7892-POOKP</td>
+      <td>Female</td>
+      <td>0</td>
+      <td>Yes</td>
+      <td>No</td>
+      <td>28</td>
+      <td>Yes</td>
+      <td>Yes</td>
+      <td>Fiber optic</td>
+      <td>No</td>
+      <td>...</td>
+      <td>Yes</td>
+      <td>Yes</td>
+      <td>Yes</td>
+      <td>Yes</td>
+      <td>Month-to-month</td>
+      <td>Yes</td>
+      <td>Electronic check</td>
+      <td>104.80</td>
+      <td>3046.05</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>6388-TABGU</td>
+      <td>Male</td>
+      <td>0</td>
+      <td>No</td>
+      <td>Yes</td>
+      <td>62</td>
+      <td>Yes</td>
+      <td>No</td>
+      <td>DSL</td>
+      <td>Yes</td>
+      <td>...</td>
+      <td>No</td>
+      <td>No</td>
+      <td>No</td>
+      <td>No</td>
+      <td>One year</td>
+      <td>No</td>
+      <td>Bank transfer (automatic)</td>
+      <td>56.15</td>
+      <td>3487.95</td>
+      <td>No</td>
+    </tr>
+  </tbody>
+</table>
+<p>10 rows × 21 columns</p>
+</div></div></div>
+</div>
+<p>Aparte de esto, se puede ver que ninguna columna posee valores faltantes, se corroborara con la siguiente línea de código:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#Valores Faltantes</span>
+<span class="n">missing</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">isna</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">to_frame</span><span class="p">(</span><span class="s2">&quot;NaN&quot;</span><span class="p">)</span>
+<span class="n">missing</span><span class="p">[</span><span class="s2">&quot;Porcentaje&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">missing</span><span class="p">[</span><span class="s2">&quot;NaN&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">))</span> <span class="o">*</span> <span class="mi">100</span>
+<span class="n">missing</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>NaN</th>
+      <th>Porcentaje</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>customerID</th>
+      <td>0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>gender</th>
+      <td>0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>SeniorCitizen</th>
+      <td>0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>Partner</th>
+      <td>0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>Dependents</th>
+      <td>0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>tenure</th>
+      <td>0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>PhoneService</th>
+      <td>0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>MultipleLines</th>
+      <td>0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>InternetService</th>
+      <td>0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>OnlineSecurity</th>
+      <td>0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>OnlineBackup</th>
+      <td>0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>DeviceProtection</th>
+      <td>0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>TechSupport</th>
+      <td>0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>StreamingTV</th>
+      <td>0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>StreamingMovies</th>
+      <td>0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>Contract</th>
+      <td>0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>PaperlessBilling</th>
+      <td>0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>PaymentMethod</th>
+      <td>0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>MonthlyCharges</th>
+      <td>0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>TotalCharges</th>
+      <td>0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>Churn</th>
+      <td>0</td>
+      <td>0.0</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<p>Nótese que no existen valores nulos en el dataset.</p>
+</section>
+<section id="analisis-univariado">
+<h2>Análisis univariado<a class="headerlink" href="#analisis-univariado" title="Link to this heading">#</a></h2>
+<p>A continuación se procederá a examinar cada variable de forma individual con el objetivo de entender su distribución, medidas centrales y de dispersión. Para complementar el análisis utilizaremos tablas estadísticas y gráficas según se considere adecuado.</p>
+<section id="variables-categoricas">
+<h3>Variables Categóricas<a class="headerlink" href="#variables-categoricas" title="Link to this heading">#</a></h3>
+<p>Para esta sección se presentarán las tablas de frecuencia de cada variable categórica sin descripción. La variable ‘customerID’ es un identificador que no aporta información valiosa, por tanto será omitido en el análisis. Se comenzará por la variable objetivo:</p>
+<section id="churn">
+<h4>Churn<a class="headerlink" href="#churn" title="Link to this heading">#</a></h4>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">tabla</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">df</span><span class="p">[</span><span class="s1">&#39;Churn&#39;</span><span class="p">]</span>
+    <span class="o">.</span><span class="n">value_counts</span><span class="p">()</span>
+    <span class="o">.</span><span class="n">rename_axis</span><span class="p">(</span><span class="s1">&#39;Churn&#39;</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;conteo&#39;</span><span class="p">)</span>
+<span class="p">)</span>
+
+<span class="n">tabla</span><span class="p">[</span><span class="s1">&#39;Porcentaje&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">tabla</span><span class="p">[</span><span class="s1">&#39;conteo&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="n">tabla</span><span class="p">[</span><span class="s1">&#39;conteo&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">tabla</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Churn</th>
+      <th>conteo</th>
+      <th>Porcentaje</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>No</td>
+      <td>5174</td>
+      <td>73.5</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>Yes</td>
+      <td>1869</td>
+      <td>26.5</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+</section>
+<section id="gender">
+<h4>Gender<a class="headerlink" href="#gender" title="Link to this heading">#</a></h4>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">tabla</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">df</span><span class="p">[</span><span class="s1">&#39;gender&#39;</span><span class="p">]</span>
+    <span class="o">.</span><span class="n">value_counts</span><span class="p">()</span>
+    <span class="o">.</span><span class="n">rename_axis</span><span class="p">(</span><span class="s1">&#39;Gender&#39;</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;conteo&#39;</span><span class="p">)</span>
+<span class="p">)</span>
+
+<span class="n">tabla</span><span class="p">[</span><span class="s1">&#39;Porcentaje&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">tabla</span><span class="p">[</span><span class="s1">&#39;conteo&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="n">tabla</span><span class="p">[</span><span class="s1">&#39;conteo&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">tabla</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Gender</th>
+      <th>conteo</th>
+      <th>Porcentaje</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>Male</td>
+      <td>3555</td>
+      <td>50.5</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>Female</td>
+      <td>3488</td>
+      <td>49.5</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+</section>
+<section id="partner">
+<h4>Partner<a class="headerlink" href="#partner" title="Link to this heading">#</a></h4>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">tabla</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">df</span><span class="p">[</span><span class="s1">&#39;Partner&#39;</span><span class="p">]</span>
+    <span class="o">.</span><span class="n">value_counts</span><span class="p">()</span>
+    <span class="o">.</span><span class="n">rename_axis</span><span class="p">(</span><span class="s1">&#39;Partner&#39;</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;conteo&#39;</span><span class="p">)</span>
+<span class="p">)</span>
+
+<span class="n">tabla</span><span class="p">[</span><span class="s1">&#39;Porcentaje&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">tabla</span><span class="p">[</span><span class="s1">&#39;conteo&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="n">tabla</span><span class="p">[</span><span class="s1">&#39;conteo&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">tabla</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Partner</th>
+      <th>conteo</th>
+      <th>Porcentaje</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>No</td>
+      <td>3641</td>
+      <td>51.7</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>Yes</td>
+      <td>3402</td>
+      <td>48.3</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+</section>
+<section id="dependents">
+<h4>Dependents<a class="headerlink" href="#dependents" title="Link to this heading">#</a></h4>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">tabla</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">df</span><span class="p">[</span><span class="s1">&#39;Dependents&#39;</span><span class="p">]</span>
+    <span class="o">.</span><span class="n">value_counts</span><span class="p">()</span>
+    <span class="o">.</span><span class="n">rename_axis</span><span class="p">(</span><span class="s1">&#39;Dependents&#39;</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;conteo&#39;</span><span class="p">)</span>
+<span class="p">)</span>
+
+<span class="n">tabla</span><span class="p">[</span><span class="s1">&#39;Porcentaje&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">tabla</span><span class="p">[</span><span class="s1">&#39;conteo&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="n">tabla</span><span class="p">[</span><span class="s1">&#39;conteo&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">tabla</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Dependents</th>
+      <th>conteo</th>
+      <th>Porcentaje</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>No</td>
+      <td>4933</td>
+      <td>70.0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>Yes</td>
+      <td>2110</td>
+      <td>30.0</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+</section>
+<section id="phoneservice">
+<h4>PhoneService<a class="headerlink" href="#phoneservice" title="Link to this heading">#</a></h4>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">tabla</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">df</span><span class="p">[</span><span class="s1">&#39;PhoneService&#39;</span><span class="p">]</span>
+    <span class="o">.</span><span class="n">value_counts</span><span class="p">()</span>
+    <span class="o">.</span><span class="n">rename_axis</span><span class="p">(</span><span class="s1">&#39;PhoneService&#39;</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;conteo&#39;</span><span class="p">)</span>
+<span class="p">)</span>
+
+<span class="n">tabla</span><span class="p">[</span><span class="s1">&#39;Porcentaje&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">tabla</span><span class="p">[</span><span class="s1">&#39;conteo&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="n">tabla</span><span class="p">[</span><span class="s1">&#39;conteo&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">tabla</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>PhoneService</th>
+      <th>conteo</th>
+      <th>Porcentaje</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>Yes</td>
+      <td>6361</td>
+      <td>90.3</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>No</td>
+      <td>682</td>
+      <td>9.7</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+</section>
+<section id="multiplelines">
+<h4>MultipleLines<a class="headerlink" href="#multiplelines" title="Link to this heading">#</a></h4>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">tabla</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">df</span><span class="p">[</span><span class="s1">&#39;MultipleLines&#39;</span><span class="p">]</span>
+    <span class="o">.</span><span class="n">value_counts</span><span class="p">()</span>
+    <span class="o">.</span><span class="n">rename_axis</span><span class="p">(</span><span class="s1">&#39;MultipleLines&#39;</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;conteo&#39;</span><span class="p">)</span>
+<span class="p">)</span>
+
+<span class="n">tabla</span><span class="p">[</span><span class="s1">&#39;Porcentaje&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">tabla</span><span class="p">[</span><span class="s1">&#39;conteo&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="n">tabla</span><span class="p">[</span><span class="s1">&#39;conteo&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">tabla</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>MultipleLines</th>
+      <th>conteo</th>
+      <th>Porcentaje</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>No</td>
+      <td>3390</td>
+      <td>48.1</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>Yes</td>
+      <td>2971</td>
+      <td>42.2</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>No phone service</td>
+      <td>682</td>
+      <td>9.7</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+</section>
+<section id="internetservice">
+<h4>InternetService<a class="headerlink" href="#internetservice" title="Link to this heading">#</a></h4>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">tabla</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">df</span><span class="p">[</span><span class="s1">&#39;InternetService&#39;</span><span class="p">]</span>
+    <span class="o">.</span><span class="n">value_counts</span><span class="p">()</span>
+    <span class="o">.</span><span class="n">rename_axis</span><span class="p">(</span><span class="s1">&#39;InternetService&#39;</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;conteo&#39;</span><span class="p">)</span>
+<span class="p">)</span>
+
+<span class="n">tabla</span><span class="p">[</span><span class="s1">&#39;Porcentaje&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">tabla</span><span class="p">[</span><span class="s1">&#39;conteo&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="n">tabla</span><span class="p">[</span><span class="s1">&#39;conteo&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">tabla</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>InternetService</th>
+      <th>conteo</th>
+      <th>Porcentaje</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>Fiber optic</td>
+      <td>3096</td>
+      <td>44.0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>DSL</td>
+      <td>2421</td>
+      <td>34.4</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>No</td>
+      <td>1526</td>
+      <td>21.7</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+</section>
+<section id="onlinesecurity">
+<h4>OnlineSecurity<a class="headerlink" href="#onlinesecurity" title="Link to this heading">#</a></h4>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">tabla</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">df</span><span class="p">[</span><span class="s1">&#39;OnlineSecurity&#39;</span><span class="p">]</span>
+    <span class="o">.</span><span class="n">value_counts</span><span class="p">()</span>
+    <span class="o">.</span><span class="n">rename_axis</span><span class="p">(</span><span class="s1">&#39;OnlineSecurity&#39;</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;conteo&#39;</span><span class="p">)</span>
+<span class="p">)</span>
+
+<span class="n">tabla</span><span class="p">[</span><span class="s1">&#39;Porcentaje&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">tabla</span><span class="p">[</span><span class="s1">&#39;conteo&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="n">tabla</span><span class="p">[</span><span class="s1">&#39;conteo&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">tabla</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>OnlineSecurity</th>
+      <th>conteo</th>
+      <th>Porcentaje</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>No</td>
+      <td>3498</td>
+      <td>49.7</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>Yes</td>
+      <td>2019</td>
+      <td>28.7</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>No internet service</td>
+      <td>1526</td>
+      <td>21.7</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+</section>
+<section id="onlinebackup">
+<h4>OnlineBackup<a class="headerlink" href="#onlinebackup" title="Link to this heading">#</a></h4>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">tabla</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">df</span><span class="p">[</span><span class="s1">&#39;OnlineBackup&#39;</span><span class="p">]</span>
+    <span class="o">.</span><span class="n">value_counts</span><span class="p">()</span>
+    <span class="o">.</span><span class="n">rename_axis</span><span class="p">(</span><span class="s1">&#39;OnlineBackup&#39;</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;conteo&#39;</span><span class="p">)</span>
+<span class="p">)</span>
+
+<span class="n">tabla</span><span class="p">[</span><span class="s1">&#39;Porcentaje&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">tabla</span><span class="p">[</span><span class="s1">&#39;conteo&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="n">tabla</span><span class="p">[</span><span class="s1">&#39;conteo&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">tabla</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>OnlineBackup</th>
+      <th>conteo</th>
+      <th>Porcentaje</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>No</td>
+      <td>3088</td>
+      <td>43.8</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>Yes</td>
+      <td>2429</td>
+      <td>34.5</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>No internet service</td>
+      <td>1526</td>
+      <td>21.7</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+</section>
+<section id="deviceprotection">
+<h4>DeviceProtection<a class="headerlink" href="#deviceprotection" title="Link to this heading">#</a></h4>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">tabla</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">df</span><span class="p">[</span><span class="s1">&#39;DeviceProtection&#39;</span><span class="p">]</span>
+    <span class="o">.</span><span class="n">value_counts</span><span class="p">()</span>
+    <span class="o">.</span><span class="n">rename_axis</span><span class="p">(</span><span class="s1">&#39;DeviceProtection&#39;</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;conteo&#39;</span><span class="p">)</span>
+<span class="p">)</span>
+
+<span class="n">tabla</span><span class="p">[</span><span class="s1">&#39;Porcentaje&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">tabla</span><span class="p">[</span><span class="s1">&#39;conteo&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="n">tabla</span><span class="p">[</span><span class="s1">&#39;conteo&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">tabla</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>DeviceProtection</th>
+      <th>conteo</th>
+      <th>Porcentaje</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>No</td>
+      <td>3095</td>
+      <td>43.9</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>Yes</td>
+      <td>2422</td>
+      <td>34.4</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>No internet service</td>
+      <td>1526</td>
+      <td>21.7</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+</section>
+<section id="techsupport">
+<h4>TechSupport<a class="headerlink" href="#techsupport" title="Link to this heading">#</a></h4>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">tabla</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">df</span><span class="p">[</span><span class="s1">&#39;TechSupport&#39;</span><span class="p">]</span>
+    <span class="o">.</span><span class="n">value_counts</span><span class="p">()</span>
+    <span class="o">.</span><span class="n">rename_axis</span><span class="p">(</span><span class="s1">&#39;TechSupport&#39;</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;conteo&#39;</span><span class="p">)</span>
+<span class="p">)</span>
+
+<span class="n">tabla</span><span class="p">[</span><span class="s1">&#39;Porcentaje&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">tabla</span><span class="p">[</span><span class="s1">&#39;conteo&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="n">tabla</span><span class="p">[</span><span class="s1">&#39;conteo&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">tabla</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>TechSupport</th>
+      <th>conteo</th>
+      <th>Porcentaje</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>No</td>
+      <td>3473</td>
+      <td>49.3</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>Yes</td>
+      <td>2044</td>
+      <td>29.0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>No internet service</td>
+      <td>1526</td>
+      <td>21.7</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+</section>
+<section id="streamingtv">
+<h4>StreamingTV<a class="headerlink" href="#streamingtv" title="Link to this heading">#</a></h4>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">tabla</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">df</span><span class="p">[</span><span class="s1">&#39;StreamingTV&#39;</span><span class="p">]</span>
+    <span class="o">.</span><span class="n">value_counts</span><span class="p">()</span>
+    <span class="o">.</span><span class="n">rename_axis</span><span class="p">(</span><span class="s1">&#39;StreamingTV&#39;</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;conteo&#39;</span><span class="p">)</span>
+<span class="p">)</span>
+
+<span class="n">tabla</span><span class="p">[</span><span class="s1">&#39;Porcentaje&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">tabla</span><span class="p">[</span><span class="s1">&#39;conteo&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="n">tabla</span><span class="p">[</span><span class="s1">&#39;conteo&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">tabla</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>StreamingTV</th>
+      <th>conteo</th>
+      <th>Porcentaje</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>No</td>
+      <td>2810</td>
+      <td>39.9</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>Yes</td>
+      <td>2707</td>
+      <td>38.4</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>No internet service</td>
+      <td>1526</td>
+      <td>21.7</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+</section>
+<section id="streamingmovies">
+<h4>StreamingMovies<a class="headerlink" href="#streamingmovies" title="Link to this heading">#</a></h4>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">tabla</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">df</span><span class="p">[</span><span class="s1">&#39;StreamingMovies&#39;</span><span class="p">]</span>
+    <span class="o">.</span><span class="n">value_counts</span><span class="p">()</span>
+    <span class="o">.</span><span class="n">rename_axis</span><span class="p">(</span><span class="s1">&#39;StreamingMovies&#39;</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;conteo&#39;</span><span class="p">)</span>
+<span class="p">)</span>
+
+<span class="n">tabla</span><span class="p">[</span><span class="s1">&#39;Porcentaje&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">tabla</span><span class="p">[</span><span class="s1">&#39;conteo&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="n">tabla</span><span class="p">[</span><span class="s1">&#39;conteo&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">tabla</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>StreamingMovies</th>
+      <th>conteo</th>
+      <th>Porcentaje</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>No</td>
+      <td>2785</td>
+      <td>39.5</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>Yes</td>
+      <td>2732</td>
+      <td>38.8</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>No internet service</td>
+      <td>1526</td>
+      <td>21.7</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+</section>
+<section id="contract">
+<h4>Contract<a class="headerlink" href="#contract" title="Link to this heading">#</a></h4>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">tabla</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">df</span><span class="p">[</span><span class="s1">&#39;Contract&#39;</span><span class="p">]</span>
+    <span class="o">.</span><span class="n">value_counts</span><span class="p">()</span>
+    <span class="o">.</span><span class="n">rename_axis</span><span class="p">(</span><span class="s1">&#39;Contract&#39;</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;conteo&#39;</span><span class="p">)</span>
+<span class="p">)</span>
+
+<span class="n">tabla</span><span class="p">[</span><span class="s1">&#39;Porcentaje&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">tabla</span><span class="p">[</span><span class="s1">&#39;conteo&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="n">tabla</span><span class="p">[</span><span class="s1">&#39;conteo&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">tabla</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Contract</th>
+      <th>conteo</th>
+      <th>Porcentaje</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>Month-to-month</td>
+      <td>3875</td>
+      <td>55.0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>Two year</td>
+      <td>1695</td>
+      <td>24.1</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>One year</td>
+      <td>1473</td>
+      <td>20.9</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+</section>
+<section id="paperlessbilling">
+<h4>PaperlessBilling<a class="headerlink" href="#paperlessbilling" title="Link to this heading">#</a></h4>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">tabla</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">df</span><span class="p">[</span><span class="s1">&#39;PaperlessBilling&#39;</span><span class="p">]</span>
+    <span class="o">.</span><span class="n">value_counts</span><span class="p">()</span>
+    <span class="o">.</span><span class="n">rename_axis</span><span class="p">(</span><span class="s1">&#39;PaperlessBilling&#39;</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;conteo&#39;</span><span class="p">)</span>
+<span class="p">)</span>
+
+<span class="n">tabla</span><span class="p">[</span><span class="s1">&#39;Porcentaje&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">tabla</span><span class="p">[</span><span class="s1">&#39;conteo&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="n">tabla</span><span class="p">[</span><span class="s1">&#39;conteo&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">tabla</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>PaperlessBilling</th>
+      <th>conteo</th>
+      <th>Porcentaje</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>Yes</td>
+      <td>4171</td>
+      <td>59.2</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>No</td>
+      <td>2872</td>
+      <td>40.8</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+</section>
+<section id="paymentmethod">
+<h4>PaymentMethod<a class="headerlink" href="#paymentmethod" title="Link to this heading">#</a></h4>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">tabla</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">df</span><span class="p">[</span><span class="s1">&#39;PaymentMethod&#39;</span><span class="p">]</span>
+    <span class="o">.</span><span class="n">value_counts</span><span class="p">()</span>
+    <span class="o">.</span><span class="n">rename_axis</span><span class="p">(</span><span class="s1">&#39;PaymentMethod&#39;</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;conteo&#39;</span><span class="p">)</span>
+<span class="p">)</span>
+
+<span class="n">tabla</span><span class="p">[</span><span class="s1">&#39;Porcentaje&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">tabla</span><span class="p">[</span><span class="s1">&#39;conteo&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="n">tabla</span><span class="p">[</span><span class="s1">&#39;conteo&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">tabla</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>PaymentMethod</th>
+      <th>conteo</th>
+      <th>Porcentaje</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>Electronic check</td>
+      <td>2365</td>
+      <td>33.6</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>Mailed check</td>
+      <td>1612</td>
+      <td>22.9</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>Bank transfer (automatic)</td>
+      <td>1544</td>
+      <td>21.9</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>Credit card (automatic)</td>
+      <td>1522</td>
+      <td>21.6</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+</section>
+<section id="totalcharges">
+<h4>TotalCharges<a class="headerlink" href="#totalcharges" title="Link to this heading">#</a></h4>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">tabla</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">df</span><span class="p">[</span><span class="s1">&#39;TotalCharges&#39;</span><span class="p">]</span>
+    <span class="o">.</span><span class="n">value_counts</span><span class="p">()</span>
+    <span class="o">.</span><span class="n">rename_axis</span><span class="p">(</span><span class="s1">&#39;TotalCharges&#39;</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;conteo&#39;</span><span class="p">)</span>
+<span class="p">)</span>
+
+<span class="n">tabla</span><span class="p">[</span><span class="s1">&#39;Porcentaje&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">tabla</span><span class="p">[</span><span class="s1">&#39;conteo&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="n">tabla</span><span class="p">[</span><span class="s1">&#39;conteo&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">tabla</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>TotalCharges</th>
+      <th>conteo</th>
+      <th>Porcentaje</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td></td>
+      <td>11</td>
+      <td>0.2</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>20.2</td>
+      <td>11</td>
+      <td>0.2</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>19.75</td>
+      <td>9</td>
+      <td>0.1</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>20.05</td>
+      <td>8</td>
+      <td>0.1</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>19.9</td>
+      <td>8</td>
+      <td>0.1</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>6526</th>
+      <td>6849.4</td>
+      <td>1</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>6527</th>
+      <td>692.35</td>
+      <td>1</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>6528</th>
+      <td>130.15</td>
+      <td>1</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>6529</th>
+      <td>3211.9</td>
+      <td>1</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>6530</th>
+      <td>6844.5</td>
+      <td>1</td>
+      <td>0.0</td>
+    </tr>
+  </tbody>
+</table>
+<p>6531 rows × 3 columns</p>
+</div></div></div>
+</div>
+<p>Para el caso de la variable ‘TotalCharges’ es necesario transformarla a una variable númerica para analizar su comportamiento:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#Convertir a numérico</span>
+<span class="n">df</span><span class="p">[</span><span class="s1">&#39;TotalCharges&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;TotalCharges&#39;</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s1">&#39;coerce&#39;</span><span class="p">)</span>
+<span class="n">df</span><span class="p">[</span><span class="s1">&#39;TotalCharges&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">info</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;class &#39;pandas.core.series.Series&#39;&gt;
+RangeIndex: 7043 entries, 0 to 7042
+Series name: TotalCharges
+Non-Null Count  Dtype  
+--------------  -----  
+7032 non-null   float64
+dtypes: float64(1)
+memory usage: 55.1 KB
+</pre></div>
+</div>
+</div>
+</div>
+<p>Una vez realizada la transformación se puede notar que existen 11 valores faltantes, equivalentes a observaciones cuyo valor en ‘TotalCharges’ era “ “ que representaban que el cliente era nuevo y no poseía ningún cargo acumulado, por tanto esos valores faltantes serán imputados con el número 0 correspondiente:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#Se rellenan los NaN con 0</span>
+<span class="n">df</span><span class="p">[</span><span class="s1">&#39;TotalCharges&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;TotalCharges&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">df</span><span class="p">[</span><span class="s1">&#39;TotalCharges&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">info</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;class &#39;pandas.core.series.Series&#39;&gt;
+RangeIndex: 7043 entries, 0 to 7042
+Series name: TotalCharges
+Non-Null Count  Dtype  
+--------------  -----  
+7043 non-null   float64
+dtypes: float64(1)
+memory usage: 55.1 KB
+</pre></div>
+</div>
+</div>
+</div>
+<p>Ya no se encuentran valores faltantes, una vez realizado esto se puede proceder al análisis de las variables númericas incluyendo a la que se acaba de transformar.</p>
+</section>
+</section>
+<section id="variables-numericas">
+<h3>Variables Númericas<a class="headerlink" href="#variables-numericas" title="Link to this heading">#</a></h3>
+<p>Se cuentan con 4 variables númericas, para cada variable númerica se realizará una descripción, un histograma y un boxplot para analizar su comportamiento, sin embargo, no se hará esto con la variable ‘SeniorCitizen’ ya que es una variable númerica binaria y no tiene sentido analizarla de esa manera. Para solucionar esto se analizará ‘SeniorCitizen’ como una variable categórica, recordando que el valor 1 representa que es un ciudadano mayor, y el 0 el caso contrario:</p>
+<section id="senior-citizen">
+<h4>Senior Citizen<a class="headerlink" href="#senior-citizen" title="Link to this heading">#</a></h4>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">tabla</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">df</span><span class="p">[</span><span class="s1">&#39;SeniorCitizen&#39;</span><span class="p">]</span>
+    <span class="o">.</span><span class="n">value_counts</span><span class="p">()</span>
+    <span class="o">.</span><span class="n">rename_axis</span><span class="p">(</span><span class="s1">&#39;SeniorCitizen&#39;</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;conteo&#39;</span><span class="p">)</span>
+<span class="p">)</span>
+
+<span class="n">tabla</span><span class="p">[</span><span class="s1">&#39;Porcentaje&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">tabla</span><span class="p">[</span><span class="s1">&#39;conteo&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="n">tabla</span><span class="p">[</span><span class="s1">&#39;conteo&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">tabla</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>SeniorCitizen</th>
+      <th>conteo</th>
+      <th>Porcentaje</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0</td>
+      <td>5901</td>
+      <td>83.8</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>1</td>
+      <td>1142</td>
+      <td>16.2</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<p>Aproximadamente el 84% de los clientes no son ciudadanos mayores.</p>
+<p>Luego se realiza el análisis de las siguientes variables:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">num_vars</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">select_dtypes</span><span class="p">(</span><span class="n">include</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;int64&#39;</span><span class="p">,</span> <span class="s1">&#39;float64&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+<span class="n">vars_to_remove</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;SeniorCitizen&quot;</span><span class="p">]</span>
+<span class="n">num_vars</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">num_vars</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">vars_to_remove</span><span class="p">]</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">plot_boxplots</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">num_vars</span><span class="p">):</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">num_vars</span><span class="p">)</span>
+    <span class="n">cols</span> <span class="o">=</span> <span class="mi">3</span>
+    <span class="n">rows</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">n</span> <span class="o">/</span> <span class="n">cols</span><span class="p">)</span>
+    
+    <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">5</span><span class="o">*</span><span class="n">cols</span><span class="p">,</span> <span class="mi">4</span><span class="o">*</span><span class="n">rows</span><span class="p">))</span>
+    
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">col</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">num_vars</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="n">cols</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+        <span class="n">sns</span><span class="o">.</span><span class="n">boxplot</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;#2ecc71&quot;</span><span class="p">)</span> <span class="c1"># Color verde suave</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Boxplot de </span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="n">fontweight</span><span class="o">=</span><span class="s1">&#39;bold&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.7</span><span class="p">)</span>
+    
+    <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">plot_histograms</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">num_vars</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">30</span><span class="p">):</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">num_vars</span><span class="p">)</span>
+    <span class="n">cols</span> <span class="o">=</span> <span class="mi">3</span> 
+    <span class="n">rows</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">n</span> <span class="o">/</span> <span class="n">cols</span><span class="p">)</span>
+    
+    <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">5</span><span class="o">*</span><span class="n">cols</span><span class="p">,</span> <span class="mi">4</span><span class="o">*</span><span class="n">rows</span><span class="p">))</span>
+    
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">col</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">num_vars</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="n">cols</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+        <span class="c1"># Agregamos KDE (línea de densidad) para ver mejor la distribución</span>
+        <span class="n">sns</span><span class="o">.</span><span class="n">histplot</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">dropna</span><span class="p">(),</span> <span class="n">bins</span><span class="o">=</span><span class="n">bins</span><span class="p">,</span> <span class="n">kde</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;#3498db&quot;</span><span class="p">)</span> 
+        <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Histograma de </span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="n">fontweight</span><span class="o">=</span><span class="s1">&#39;bold&#39;</span><span class="p">)</span>
+    
+    <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+    
+<span class="k">def</span><span class="w"> </span><span class="nf">describe_variables</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">num_vars</span><span class="p">):</span>
+    <span class="n">desc</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">num_vars</span><span class="p">]</span><span class="o">.</span><span class="n">describe</span><span class="p">()</span><span class="o">.</span><span class="n">T</span>
+    <span class="n">desc</span><span class="p">[</span><span class="s2">&quot;median&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">num_vars</span><span class="p">]</span><span class="o">.</span><span class="n">median</span><span class="p">()</span>
+    <span class="n">desc</span><span class="p">[</span><span class="s2">&quot;missing&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">num_vars</span><span class="p">]</span><span class="o">.</span><span class="n">isna</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+    <span class="n">cols_order</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;count&#39;</span><span class="p">,</span> <span class="s1">&#39;mean&#39;</span><span class="p">,</span> <span class="s1">&#39;std&#39;</span><span class="p">,</span> <span class="s1">&#39;min&#39;</span><span class="p">,</span> <span class="s1">&#39;25%&#39;</span><span class="p">,</span> <span class="s1">&#39;50%&#39;</span><span class="p">,</span> <span class="s1">&#39;median&#39;</span><span class="p">,</span> <span class="s1">&#39;75%&#39;</span><span class="p">,</span> <span class="s1">&#39;max&#39;</span><span class="p">,</span> <span class="s1">&#39;missing&#39;</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">desc</span><span class="p">[</span><span class="n">cols_order</span><span class="p">]</span>
+
+<span class="n">resumen</span> <span class="o">=</span> <span class="n">describe_variables</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">num_vars</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Resumen Estadístico:&quot;</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="n">resumen</span><span class="p">)</span> 
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Resumen Estadístico:
+</pre></div>
+</div>
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>count</th>
+      <th>mean</th>
+      <th>std</th>
+      <th>min</th>
+      <th>25%</th>
+      <th>50%</th>
+      <th>median</th>
+      <th>75%</th>
+      <th>max</th>
+      <th>missing</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>tenure</th>
+      <td>7043.0</td>
+      <td>32.371149</td>
+      <td>24.559481</td>
+      <td>0.00</td>
+      <td>9.00</td>
+      <td>29.00</td>
+      <td>29.00</td>
+      <td>55.00</td>
+      <td>72.00</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>MonthlyCharges</th>
+      <td>7043.0</td>
+      <td>64.761692</td>
+      <td>30.090047</td>
+      <td>18.25</td>
+      <td>35.50</td>
+      <td>70.35</td>
+      <td>70.35</td>
+      <td>89.85</td>
+      <td>118.75</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>TotalCharges</th>
+      <td>7043.0</td>
+      <td>2279.734304</td>
+      <td>2266.794470</td>
+      <td>0.00</td>
+      <td>398.55</td>
+      <td>1394.55</td>
+      <td>1394.55</td>
+      <td>3786.60</td>
+      <td>8684.80</td>
+      <td>0</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<p>El análisis de las variables numéricas muestra patrones interesantes sobre el comportamiento de los clientes. La variable tenure presenta una media de aproximadamente 32 meses, con una desviación estándar alta (≈24.5), lo que indica una gran dispersión en la antigüedad de los clientes; además, el hecho de que el mínimo sea 0 sugiere la presencia de clientes muy recientes, mientras que el máximo de 72 meses refleja clientes altamente fidelizados. Por otro lado, MonthlyCharges también exhibe variabilidad considerable, con valores que van desde 18.25 hasta 118.75, lo que evidencia la existencia de distintos niveles de servicios contratados; la mediana (70.35) superior al primer cuartil sugiere cierta concentración en planes de costo medio-alto. Finalmente, TotalCharges presenta la mayor dispersión (std ≈ 2266), lo cual es consistente con su naturaleza acumulativa y su dependencia tanto de la antigüedad como del cargo mensual; la diferencia notable entre la mediana (≈1394.55) y el máximo (≈8684.80) sugiere una distribución sesgada hacia la derecha, con clientes que han acumulado cargos significativamente altos a lo largo del tiempo. En conjunto, estas variables reflejan heterogeneidad en el comportamiento de los clientes, lo cual resulta clave para modelos predictivos de churn.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Generando Boxplots...&quot;</span><span class="p">)</span>
+<span class="n">plot_boxplots</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">num_vars</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Generando Boxplots...
+</pre></div>
+</div>
+<img alt="_images/b905d904d6f25526fcfcca41a8dd4b0e462df104667f733df7fe4150d47f3250.png" src="_images/b905d904d6f25526fcfcca41a8dd4b0e462df104667f733df7fe4150d47f3250.png" />
+</div>
+</div>
+<p>Los boxplots permiten observar la dispersión y posibles valores atípicos en las variables numéricas. En tenure, se aprecia una distribución relativamente amplia, con la mediana ubicada hacia valores bajos-medios y sin presencia marcada de outliers, lo que sugiere una distribución bastante equilibrada dentro de su rango (0 a 72 meses). En MonthlyCharges, la mediana se encuentra ligeramente desplazada hacia valores altos y el rango intercuartílico es amplio, lo que indica heterogeneidad en los planes contratados; tampoco se observan outliers extremos, lo que sugiere una distribución controlada. Por su parte, TotalCharges muestra una clara asimetría positiva: la mediana está cerca del primer cuartil y el rango se extiende considerablemente hacia valores altos, reflejando la acumulación de cargos en clientes con mayor antigüedad. Aunque no hay outliers explícitos, la cola superior larga indica la presencia de valores extremos altos, coherentes con clientes de larga permanencia.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Generando Boxplots...&quot;</span><span class="p">)</span>
+<span class="n">plot_histograms</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">num_vars</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Generando Boxplots...
+</pre></div>
+</div>
+<img alt="_images/1c935f605169391dce2efdd7e85419779e18dd0e6749137fa30c04f874064466.png" src="_images/1c935f605169391dce2efdd7e85419779e18dd0e6749137fa30c04f874064466.png" />
+</div>
+</div>
+<p>Los histogramas permiten entender la forma de la distribución de cada variable. En tenure, se observa una distribución que no es uniforme: hay una mayor concentración tanto en valores bajos (clientes nuevos) como en valores altos (clientes antiguos), lo que sugiere una posible segmentación natural entre clientes recientes y fidelizados. En MonthlyCharges, la distribución presenta una ligera multimodalidad, lo que indica la existencia de distintos grupos de clientes asociados a diferentes paquetes de servicios (por ejemplo, planes básicos vs. premium). Finalmente, TotalCharges muestra una distribución fuertemente sesgada a la derecha, con una alta concentración de clientes en valores bajos y una cola larga hacia valores elevados; esto es consistente con su naturaleza acumulativa y su dependencia de tenure, evidenciando que pocos clientes concentran cargos totales muy altos. En conjunto, estas distribuciones sugieren que los datos no siguen una distribución normal, lo cual es relevante para la selección de modelos y técnicas de preprocesamiento.</p>
+</section>
+</section>
+</section>
+<section id="preprocesamiento-y-deteccion-de-data-leakage">
+<h2>Preprocesamiento y detección de Data Leakage<a class="headerlink" href="#preprocesamiento-y-deteccion-de-data-leakage" title="Link to this heading">#</a></h2>
+<p>Inicialmente se define una función para preparar la variable objetivo y el dataset, inicialmente se elimina la variable ‘costumerID’ pues es un identificador que no aporta información útil al modelo, seguido de esto se codifica la variable objetivo ‘churn’, de tal manera que quede como una variable númerica binaria, luego de esto se realiza la respectiva separación:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">preparar_objetivo</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">]:</span>
+    <span class="n">df_clean</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>  <span class="c1"># ← nunca tocar el df original</span>
+    
+    <span class="c1">#Eliminar customerID</span>
+    <span class="n">df_clean</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;customerID&quot;</span><span class="p">],</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1">#Codificación de variable objetivo</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="p">(</span><span class="n">df_clean</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;Churn&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;Yes&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+    <span class="n">X</span> <span class="o">=</span> <span class="n">df_clean</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Dataset cargado: </span><span class="si">{</span><span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2"> observaciones, </span><span class="si">{</span><span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2"> predictoras&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Distribución Churn: No=</span><span class="si">{</span><span class="p">(</span><span class="n">y</span><span class="o">==</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="si">}</span><span class="s2"> | Yes=</span><span class="si">{</span><span class="p">(</span><span class="n">y</span><span class="o">==</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Una vez hecho esto se definen en grupos las variables a utilizar para el modelo para facilitar el manejo y la aplicación del preprocesamiento. Para la codificación de variables categóricas se utilizará Ordinal Encoder, que asigna un número entero para cada categoría, esto es válido ya que los modelos basados en árboles como Random Forest, XGBoost, CatBoost y LightGBM realizan particiones del espacio de variables mediante puntos de corte numéricos, sin asumir relaciones de distancia o magnitud entre los valores, así el modelo evaluará distintos umbrales y encontrará las divisiones óptimas independientemente del orden asignado a las categorías. Además, este enfoque evita el aumento en la dimensionalidad que genera el One-Hot Encoding, lo que mejora la eficiencia computacional, especialmente durante procesos como la validación cruzada y la optimización de hiperparámetros.</p>
+<p>Con todo claro, se construye el pipeline de pre-procesamiento, que incluye el escalado para las variables númericas y el codificado de las variables categóricas:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#Numéricas (escalar con StandardScaler)</span>
+<span class="n">NUMERIC_FEATURES</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;tenure&quot;</span><span class="p">,</span> <span class="s2">&quot;MonthlyCharges&quot;</span><span class="p">,</span> <span class="s2">&quot;TotalCharges&quot;</span><span class="p">]</span>
+
+<span class="c1">#Categóricas binarias</span>
+<span class="n">BINARY_YN_FEATURES</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;gender&quot;</span><span class="p">,</span> <span class="s2">&quot;SeniorCitizen&quot;</span><span class="p">,</span> <span class="s2">&quot;Partner&quot;</span><span class="p">,</span> <span class="s2">&quot;Dependents&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;PhoneService&quot;</span><span class="p">,</span> <span class="s2">&quot;PaperlessBilling&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="c1">#Categóricas </span>
+<span class="n">CATEGORICAL_FEATURES</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;MultipleLines&quot;</span><span class="p">,</span> <span class="s2">&quot;InternetService&quot;</span><span class="p">,</span> <span class="s2">&quot;OnlineSecurity&quot;</span><span class="p">,</span> <span class="s2">&quot;OnlineBackup&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;DeviceProtection&quot;</span><span class="p">,</span> <span class="s2">&quot;TechSupport&quot;</span><span class="p">,</span> <span class="s2">&quot;StreamingTV&quot;</span><span class="p">,</span> <span class="s2">&quot;StreamingMovies&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Contract&quot;</span><span class="p">,</span> <span class="s2">&quot;PaymentMethod&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="n">ALL_CAT</span> <span class="o">=</span> <span class="n">BINARY_YN_FEATURES</span> <span class="o">+</span> <span class="n">CATEGORICAL_FEATURES</span>
+
+<span class="c1">#Pipeline de pre-procesamiento con Column Transformer</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">build_preprocessor</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">ColumnTransformer</span><span class="p">:</span>
+<span class="c1">#StandardScaler para numéricas</span>
+<span class="c1">#OrdinalEncoder para todas las categóricas (compatible con modelos basados en árboles)</span>
+
+    <span class="n">numeric_transformer</span> <span class="o">=</span> <span class="n">Pipeline</span><span class="p">([</span>
+        <span class="p">(</span><span class="s2">&quot;scaler&quot;</span><span class="p">,</span> <span class="n">StandardScaler</span><span class="p">()),</span>
+    <span class="p">])</span>
+
+    <span class="n">categorical_transformer</span> <span class="o">=</span> <span class="n">Pipeline</span><span class="p">([</span>
+        <span class="p">(</span><span class="s2">&quot;encoder&quot;</span><span class="p">,</span> <span class="n">OrdinalEncoder</span><span class="p">(</span><span class="n">handle_unknown</span><span class="o">=</span><span class="s2">&quot;use_encoded_value&quot;</span><span class="p">,</span> <span class="n">unknown_value</span><span class="o">=-</span><span class="mi">1</span><span class="p">)),</span>
+    <span class="p">])</span>
+
+    <span class="n">preprocessor</span> <span class="o">=</span> <span class="n">ColumnTransformer</span><span class="p">(</span>
+        <span class="n">transformers</span><span class="o">=</span><span class="p">[</span>
+            <span class="p">(</span><span class="s2">&quot;num&quot;</span><span class="p">,</span> <span class="n">numeric_transformer</span><span class="p">,</span> <span class="n">NUMERIC_FEATURES</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;cat&quot;</span><span class="p">,</span> <span class="n">categorical_transformer</span><span class="p">,</span> <span class="n">ALL_CAT</span><span class="p">),</span>
+        <span class="p">],</span>
+        <span class="n">remainder</span><span class="o">=</span><span class="s2">&quot;drop&quot;</span><span class="p">,</span>
+        <span class="n">verbose_feature_names_out</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">preprocessor</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Luego se procede a la validación cruzada, se empleó validación cruzada estratificada con cinco particiones usando el método StratifiedKFold con k=5, garantizando que cada fold mantenga la proporción original de clases (~74% No Churn - ~26% Churn), lo cual es importante debido al desbalance presente en el dataset. Como métrica principal de optimización se seleccionó el ROC-AUC, ya que evalúa la capacidad del modelo para discriminar entre ambas clases a lo largo de todos los umbrales de decisión posibles, siendo una métrica robusta e independiente del desbalance de clases. Además, el umbral de decisión (threshold) para priorizar la Precision o el Recall, depende de si a la empresa le sale más caro perder un cliente o hacer una campaña de fidelización innecesaria; en este caso, no se definió un umbral porque no se saben las limitaciones de la empresa en cuanto a las técnicas que usen de fidelización y qué desean priorizar en últimas.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#validación cruzada</span>
+<span class="n">CV</span> <span class="o">=</span> <span class="n">StratifiedKFold</span><span class="p">(</span><span class="n">n_splits</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+<span class="n">SCORER</span> <span class="o">=</span> <span class="n">make_scorer</span><span class="p">(</span><span class="n">roc_auc_score</span><span class="p">,</span> <span class="n">needs_proba</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1">#métrica principal: ROC-AUC</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Para cada modelo se construye un Pipeline de Scikit-learn que encadena secuencialmente el pre-procesador y el clasificador, garantizando que las transformaciones se ajusten exclusivamente sobre los datos de entrenamiento en cada fold y nunca sobre los de validación, evitando así data leakage. En el primer modelo que es Random-Forest, se utiliza <strong>class_weight= “balanced”</strong> que se usa para compensar el desbalance de las clases, en <strong>rf_param_grid</strong> se define el espacio de búsqueda sobre los hiperparámetros que controlan la complejidad del bosque: profundidad, tamaño mínimo de nodos, número de features por split, bootstrapping y criterio de división, luego este grid se entrega al GridSearchCV, que evaluará todas las combinaciones posibles usando la validación cruzada estratificada y la métrica ROC-AUC definidas globalmente, reentrenando al final el mejor estimador sobre la totalidad del conjunto de entrenamiento con el parámetro <strong>refit=True</strong>.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#Pipelines de cada modelo y grids de hiperparámetros</span>
+
+<span class="n">preprocessor</span> <span class="o">=</span> <span class="n">build_preprocessor</span><span class="p">()</span>
+
+<span class="c1">#RANDOM-FOREST</span>
+<span class="n">rf_pipeline</span> <span class="o">=</span> <span class="n">Pipeline</span><span class="p">([</span>
+    <span class="p">(</span><span class="s2">&quot;prep&quot;</span><span class="p">,</span> <span class="n">preprocessor</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;clf&quot;</span><span class="p">,</span> <span class="n">RandomForestClassifier</span><span class="p">(</span>
+        <span class="n">n_estimators</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span>
+        <span class="n">n_jobs</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span>
+        <span class="n">class_weight</span><span class="o">=</span><span class="s2">&quot;balanced&quot;</span><span class="p">,</span>   <span class="c1">#dataset desbalanceado ~26% churn</span>
+    <span class="p">)),</span>
+<span class="p">])</span>
+
+<span class="n">rf_param_grid</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;clf__max_depth&quot;</span><span class="p">:</span>        <span class="p">[</span><span class="mi">6</span><span class="p">,</span> <span class="mi">20</span><span class="p">],</span>
+    <span class="s2">&quot;clf__min_samples_split&quot;</span><span class="p">:[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">10</span><span class="p">],</span>
+    <span class="s2">&quot;clf__min_samples_leaf&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span>  <span class="mi">4</span><span class="p">],</span>
+    <span class="s2">&quot;clf__max_features&quot;</span><span class="p">:</span>     <span class="p">[</span><span class="s2">&quot;sqrt&quot;</span><span class="p">,</span> <span class="s2">&quot;log2&quot;</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">],</span>
+    <span class="s2">&quot;clf__bootstrap&quot;</span><span class="p">:</span>        <span class="p">[</span><span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">],</span>
+    <span class="s2">&quot;clf__criterion&quot;</span><span class="p">:</span>        <span class="p">[</span><span class="s2">&quot;gini&quot;</span><span class="p">,</span> <span class="s2">&quot;entropy&quot;</span><span class="p">],</span>
+<span class="p">}</span>
+
+<span class="n">rf_search</span> <span class="o">=</span> <span class="n">GridSearchCV</span><span class="p">(</span>
+    <span class="n">estimator</span><span class="o">=</span><span class="n">rf_pipeline</span><span class="p">,</span>
+    <span class="n">param_grid</span><span class="o">=</span><span class="n">rf_param_grid</span><span class="p">,</span>
+    <span class="n">cv</span><span class="o">=</span><span class="n">CV</span><span class="p">,</span>
+    <span class="n">scoring</span><span class="o">=</span><span class="n">SCORER</span><span class="p">,</span>
+    <span class="n">n_jobs</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span>
+    <span class="n">refit</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">verbose</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="n">return_train_score</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Para XGBoost se mantiene la misma estructura de Pipeline, con dos cambio: Primero, el manejo del desbalance de clases se realiza con scale_pos_weight, calculado como la razón entre observaciones negativas y positivas, lo que le indica al modelo que penalice tres veces más los errores sobre la clase minoritaria durante el entrenamiento. Segundo, se especifica <strong>tree_method=”hist”</strong>, que construye los árboles mediante histogramas de gradiente, resultando significativamente más rápido que el método base, y además habilita de forma nativa la aceleración por GPU solo añadiendo <strong>device=”cuda”</strong> sin cambios adicionales en el código. El grid de hiperparámetros se enfoca en controlar la regularización y el submuestreo: subsample y colsample_bytree reducen la varianza muestreando filas y columnas por árbol, gamma y min_child_weight regulan la complejidad de los splits exigiendo una ganancia mínima o un peso mínimo en los nodos hoja, y reg_alpha/reg_lambda aplican regularización L1 y L2 sobre los pesos de las hojas respectivamente. Finalmente, n_jobs=1 en el GridSearchCV evita la sobreasignación de hilos dado que XGBoost ya gestiona su propio paralelismo interno.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#XGBOOST  (GPU: device=&quot;cuda&quot; si hay GPU disponible)</span>
+
+<span class="c1">#scale_pos_weight se encarga del balanceo de las clases utilizando pesos</span>
+
+<span class="n">SCALE_POS</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">((</span><span class="mi">7043</span> <span class="o">*</span> <span class="mf">0.74</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mi">7043</span> <span class="o">*</span> <span class="mf">0.26</span><span class="p">)))</span>  <span class="c1"># ≈ 2.85 → ~3</span>
+
+<span class="n">xgb_pipeline</span> <span class="o">=</span> <span class="n">Pipeline</span><span class="p">([</span>
+    <span class="p">(</span><span class="s2">&quot;prep&quot;</span><span class="p">,</span> <span class="n">preprocessor</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;clf&quot;</span><span class="p">,</span> <span class="n">XGBClassifier</span><span class="p">(</span>
+        <span class="n">n_estimators</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span>
+        <span class="n">learning_rate</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span>
+        <span class="n">scale_pos_weight</span><span class="o">=</span><span class="n">SCALE_POS</span><span class="p">,</span>
+        <span class="n">eval_metric</span><span class="o">=</span><span class="s2">&quot;auc&quot;</span><span class="p">,</span>
+        <span class="n">use_label_encoder</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span>
+        <span class="n">device</span><span class="o">=</span><span class="s2">&quot;cuda&quot;</span><span class="p">,</span>  
+        <span class="n">tree_method</span><span class="o">=</span><span class="s2">&quot;hist&quot;</span><span class="p">,</span>  
+        <span class="n">verbosity</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="p">)),</span>
+<span class="p">])</span>
+
+<span class="n">xgb_param_grid</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;clf__max_depth&quot;</span><span class="p">:</span>        <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">8</span><span class="p">],</span>
+    <span class="s2">&quot;clf__subsample&quot;</span><span class="p">:</span>        <span class="p">[</span><span class="mf">0.7</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">],</span>
+    <span class="s2">&quot;clf__colsample_bytree&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.6</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">],</span>
+    <span class="s2">&quot;clf__gamma&quot;</span><span class="p">:</span>            <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">],</span>
+    <span class="s2">&quot;clf__min_child_weight&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span>
+<span class="p">}</span>
+
+<span class="n">xgb_search</span> <span class="o">=</span> <span class="n">GridSearchCV</span><span class="p">(</span>
+    <span class="n">estimator</span><span class="o">=</span><span class="n">xgb_pipeline</span><span class="p">,</span>
+    <span class="n">param_grid</span><span class="o">=</span><span class="n">xgb_param_grid</span><span class="p">,</span>
+    <span class="n">cv</span><span class="o">=</span><span class="n">CV</span><span class="p">,</span>
+    <span class="n">scoring</span><span class="o">=</span><span class="n">SCORER</span><span class="p">,</span>
+    <span class="n">n_jobs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>           <span class="c1">#XGBoost ya paraleliza internamente; n_jobs=1 evita conflictos</span>
+    <span class="n">refit</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">verbose</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="n">return_train_score</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>CatBoost es el único modelo del proyecto que requiere un preprocesador diferenciado, esto es porque tiene su propio algoritmo de codificación de variables categóricas basado en ordered target statistics, lo que lo hace superior a cualquier codificación manual previa. Por esta razón, el ColumnTransformer aplica StandardScaler únicamente sobre las variables numéricas y deja pasar las categóricas sin transformación utilizando passthrough, conservando sus valores como strings. Tras el ColumnTransformer, las columnas quedan reordenadas, por lo que CAT_FEATURE_INDICES reconstruye explícitamente esas posiciones para informarle al clasificador qué columnas debe tratar como categóricas. El balanceo de clases se gestiona con auto_class_weights=”Balanced”, equivalente al class_weight=”balanced” de Scikit-learn. En cuanto al grid, l2_leaf_reg controla la regularización L2 sobre los valores de las hojas, bagging_temperature regula la aleatoriedad del muestreo de observaciones, border_count determina la granularidad de la discretización de variables numéricas en histogramas, random_strength introduce ruido en los scores de los splits para reducir el sobreajuste, y one_hot_max_size define el umbral de cardinalidad por debajo del cual CatBoost aplica One-Hot Encoding en lugar de target encoding, siendo este último hiperparámetro especialmente relevante para las variables binarias del dataset.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#CATBOOST  (puede recibir las columnas categóricas sin codificarlas)</span>
+
+<span class="c1">#CatBoost maneja categorías internamente asi que definimos un preprocesador diferente</span>
+
+<span class="n">cat_preprocessor_cb</span> <span class="o">=</span> <span class="n">ColumnTransformer</span><span class="p">(</span>
+    <span class="n">transformers</span><span class="o">=</span><span class="p">[</span>
+        <span class="p">(</span><span class="s2">&quot;num&quot;</span><span class="p">,</span> <span class="n">StandardScaler</span><span class="p">(),</span> <span class="n">NUMERIC_FEATURES</span><span class="p">),</span>
+        <span class="c1">#CatBoost recibe índices de columnas categóricas → aquí pasamos strings</span>
+        <span class="p">(</span><span class="s2">&quot;cat&quot;</span><span class="p">,</span> <span class="s2">&quot;passthrough&quot;</span><span class="p">,</span> <span class="n">ALL_CAT</span><span class="p">),</span>
+    <span class="p">],</span>
+    <span class="n">remainder</span><span class="o">=</span><span class="s2">&quot;drop&quot;</span><span class="p">,</span>
+    <span class="n">verbose_feature_names_out</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1">#Índices de columnas categóricas DESPUÉS del ColumnTransformer</span>
+<span class="c1">#num: 0,1,2  → cat empieza en 3</span>
+<span class="n">CAT_FEATURE_INDICES</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">NUMERIC_FEATURES</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">NUMERIC_FEATURES</span><span class="p">)</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">ALL_CAT</span><span class="p">)))</span>
+
+<span class="n">cb_pipeline</span> <span class="o">=</span> <span class="n">Pipeline</span><span class="p">([</span>
+    <span class="p">(</span><span class="s2">&quot;prep&quot;</span><span class="p">,</span> <span class="n">cat_preprocessor_cb</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;clf&quot;</span><span class="p">,</span> <span class="n">CatBoostClassifier</span><span class="p">(</span>
+        <span class="n">iterations</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span>
+        <span class="n">learning_rate</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span>
+        <span class="n">auto_class_weights</span><span class="o">=</span><span class="s2">&quot;Balanced&quot;</span><span class="p">,</span>
+        <span class="n">eval_metric</span><span class="o">=</span><span class="s2">&quot;AUC&quot;</span><span class="p">,</span>   <span class="c1"># ← funciona en CPU sin warnings</span>
+        <span class="n">random_seed</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span>
+        <span class="n">verbose</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="n">thread_count</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span>     <span class="c1"># ← todos los núcleos de CPU</span>
+        <span class="n">train_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">)),</span>
+<span class="p">])</span>
+
+<span class="n">cb_param_grid</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;clf__depth&quot;</span><span class="p">:</span>            <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">8</span><span class="p">],</span>
+    <span class="s2">&quot;clf__l2_leaf_reg&quot;</span><span class="p">:</span>      <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span>
+    <span class="s2">&quot;clf__bagging_temperature&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">],</span> 
+    <span class="s2">&quot;clf__border_count&quot;</span><span class="p">:</span>     <span class="p">[</span><span class="mi">64</span><span class="p">,</span> <span class="mi">128</span><span class="p">],</span>
+<span class="p">}</span>
+
+<span class="n">cb_search</span> <span class="o">=</span> <span class="n">GridSearchCV</span><span class="p">(</span>
+    <span class="n">estimator</span><span class="o">=</span><span class="n">cb_pipeline</span><span class="p">,</span>
+    <span class="n">param_grid</span><span class="o">=</span><span class="n">cb_param_grid</span><span class="p">,</span>
+    <span class="n">cv</span><span class="o">=</span><span class="n">CV</span><span class="p">,</span>
+    <span class="n">scoring</span><span class="o">=</span><span class="n">SCORER</span><span class="p">,</span>
+    <span class="n">n_jobs</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span>
+    <span class="n">refit</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">verbose</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="n">return_train_score</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Por último está LightGBM su principal diferencia es que construye los árboles hoja por hoja (leaf-wise) en lugar de nivel por nivel (level-wise), lo que le permite encontrar particiones más precisas con menos iteraciones pero exige un control más cuidadoso de la complejidad. Esto se refleja en su grid: num_leaves es el hiperparámetro más crítico de LightGBM, ya que determina la complejidad máxima del árbol de forma más directa que max_depth, incluso max_depth=-1 elimina la restricción de profundidad y delega todo el control a num_leaves. Por otro lado, min_child_samples y min_child_weight actúan como regularizadores exigiendo un número mínimo de observaciones y suma de pesos en cada hoja, siendo el primero especialmente efectivo contra el sobreajuste en datasets pequeños. subsample y colsample_bytree submuestrean filas y columnas por árbol respectivamente, reg_alpha y reg_lambda aplican regularización L1 y L2, y max_bin controla la granularidad de los histogramas, de esta forma valores más altos aumentan la precisión de los splits a costa de mayor memoria y tiempo de cómputo. A diferencia de XGBoost y CatBoost, aquí n_jobs=-1 es seguro porque LightGBM respeta la paralelización externa del GridSearchCV sin conflictos de sobreasignación de hilos.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#LIGHTGBM  </span>
+
+
+<span class="n">lgbm_pipeline</span> <span class="o">=</span> <span class="n">Pipeline</span><span class="p">([</span>
+    <span class="p">(</span><span class="s2">&quot;prep&quot;</span><span class="p">,</span> <span class="n">preprocessor</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;clf&quot;</span><span class="p">,</span> <span class="n">LGBMClassifier</span><span class="p">(</span>
+        <span class="n">n_estimators</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span>
+        <span class="n">learning_rate</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span>
+        <span class="n">class_weight</span><span class="o">=</span><span class="s2">&quot;balanced&quot;</span><span class="p">,</span>
+        <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span>
+        <span class="n">verbose</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">device</span><span class="o">=</span><span class="s2">&quot;gpu&quot;</span><span class="p">,</span>  <span class="c1"># ← descomentar si GPU disponible</span>
+    <span class="p">)),</span>
+<span class="p">])</span>
+
+<span class="n">lgbm_param_grid</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;clf__num_leaves&quot;</span><span class="p">:</span>        <span class="p">[</span><span class="mi">31</span><span class="p">,</span> <span class="mi">127</span><span class="p">],</span>
+    <span class="s2">&quot;clf__min_child_samples&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">50</span><span class="p">],</span>
+    <span class="s2">&quot;clf__subsample&quot;</span><span class="p">:</span>         <span class="p">[</span><span class="mf">0.7</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">],</span>
+    <span class="s2">&quot;clf__colsample_bytree&quot;</span><span class="p">:</span>  <span class="p">[</span><span class="mf">0.6</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">],</span>
+    <span class="s2">&quot;clf__reg_alpha&quot;</span><span class="p">:</span>         <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">],</span>
+<span class="p">}</span>
+<span class="n">lgbm_search</span> <span class="o">=</span> <span class="n">GridSearchCV</span><span class="p">(</span>
+    <span class="n">estimator</span><span class="o">=</span><span class="n">lgbm_pipeline</span><span class="p">,</span>
+    <span class="n">param_grid</span><span class="o">=</span><span class="n">lgbm_param_grid</span><span class="p">,</span>
+    <span class="n">cv</span><span class="o">=</span><span class="n">CV</span><span class="p">,</span>
+    <span class="n">scoring</span><span class="o">=</span><span class="n">SCORER</span><span class="p">,</span>
+    <span class="n">n_jobs</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span>
+    <span class="n">refit</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">verbose</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="n">return_train_score</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Una vez preparado y explicado cada modelo, se procede con el pipeline principal de entrenamiento.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">evaluate_model</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">search</span><span class="p">:</span> <span class="n">GridSearchCV</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">,</span> <span class="n">train_time</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+    <span class="n">best</span> <span class="o">=</span> <span class="n">search</span><span class="o">.</span><span class="n">best_estimator_</span>
+    <span class="n">y_pred</span> <span class="o">=</span> <span class="n">best</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span>
+    <span class="n">y_prob</span> <span class="o">=</span> <span class="n">best</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">X_test</span><span class="p">)[:,</span> <span class="mi">1</span><span class="p">]</span>
+
+    <span class="n">auc</span>   <span class="o">=</span> <span class="n">roc_auc_score</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">y_prob</span><span class="p">)</span>
+    <span class="n">f1</span>    <span class="o">=</span> <span class="n">f1_score</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">)</span>
+    <span class="n">prec</span>  <span class="o">=</span> <span class="n">precision_score</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">)</span>
+    <span class="n">rec</span>   <span class="o">=</span> <span class="n">recall_score</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">)</span>
+    <span class="n">acc</span>   <span class="o">=</span> <span class="n">accuracy_score</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">)</span>
+    <span class="n">cv_auc</span> <span class="o">=</span> <span class="n">search</span><span class="o">.</span><span class="n">best_score_</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="si">{</span><span class="s1">&#39;=&#39;</span><span class="o">*</span><span class="mi">60</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;=&#39;</span><span class="o">*</span><span class="mi">60</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Tiempo de entrenamiento: </span><span class="si">{</span><span class="n">train_time</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">s&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Mejores hiperparámetros: </span><span class="si">{</span><span class="n">search</span><span class="o">.</span><span class="n">best_params_</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Test Accuracy:           </span><span class="si">{</span><span class="n">acc</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Test Precision:          </span><span class="si">{</span><span class="n">prec</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Test Recall:             </span><span class="si">{</span><span class="n">rec</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Test F1-Score:           </span><span class="si">{</span><span class="n">f1</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Test ROC-AUC:            </span><span class="si">{</span><span class="n">auc</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="si">{</span><span class="n">classification_report</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span><span class="w"> </span><span class="n">y_pred</span><span class="p">,</span><span class="w"> </span><span class="n">target_names</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;No Churn&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Churn&#39;</span><span class="p">])</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;model&quot;</span><span class="p">:</span>        <span class="n">name</span><span class="p">,</span>
+        <span class="s2">&quot;best_params&quot;</span><span class="p">:</span>  <span class="n">search</span><span class="o">.</span><span class="n">best_params_</span><span class="p">,</span>
+        <span class="s2">&quot;cv_roc_auc&quot;</span><span class="p">:</span>   <span class="n">cv_auc</span><span class="p">,</span>
+        <span class="s2">&quot;test_roc_auc&quot;</span><span class="p">:</span> <span class="n">auc</span><span class="p">,</span>
+        <span class="s2">&quot;test_f1&quot;</span><span class="p">:</span>      <span class="n">f1</span><span class="p">,</span>
+        <span class="s2">&quot;test_prec&quot;</span><span class="p">:</span>    <span class="n">prec</span><span class="p">,</span>
+        <span class="s2">&quot;test_rec&quot;</span><span class="p">:</span>     <span class="n">rec</span><span class="p">,</span>
+        <span class="s2">&quot;test_acc&quot;</span><span class="p">:</span>     <span class="n">acc</span><span class="p">,</span>
+        <span class="s2">&quot;train_time_s&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">train_time</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+        <span class="s2">&quot;estimator&quot;</span><span class="p">:</span>    <span class="n">best</span><span class="p">,</span>
+    <span class="p">}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">run_pipeline</span><span class="p">():</span>
+    <span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">preparar_objetivo</span><span class="p">()</span>
+
+    <span class="n">X_train</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">y_test</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span>
+        <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="mf">0.20</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span> <span class="n">stratify</span><span class="o">=</span><span class="n">y</span>
+    <span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Train: </span><span class="si">{</span><span class="n">X_train</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2"> | Test: </span><span class="si">{</span><span class="n">X_test</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="n">MODELS</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;CatBoost&quot;</span><span class="p">:</span>      <span class="n">cb_search</span><span class="p">,</span>
+        <span class="s2">&quot;LightGBM&quot;</span><span class="p">:</span>      <span class="n">lgbm_search</span><span class="p">,</span>
+        <span class="s2">&quot;Random Forest&quot;</span><span class="p">:</span> <span class="n">rf_search</span><span class="p">,</span>
+        <span class="s2">&quot;XGBoost&quot;</span><span class="p">:</span>       <span class="n">xgb_search</span><span class="p">,</span>
+        
+    <span class="p">}</span>
+
+    <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">search</span> <span class="ow">in</span> <span class="n">MODELS</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&gt;&gt;&gt; Entrenando </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">...&quot;</span><span class="p">)</span>
+
+        <span class="n">t0</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>                          <span class="c1"># ← inicio</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;CatBoost&quot;</span><span class="p">:</span>
+            <span class="n">search</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">clf__cat_features</span><span class="o">=</span><span class="n">CAT_FEATURE_INDICES</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">search</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
+        <span class="n">train_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">t0</span>             <span class="c1"># ← fin</span>
+
+        <span class="n">res</span> <span class="o">=</span> <span class="n">evaluate_model</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">search</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">,</span> <span class="n">train_time</span><span class="p">)</span>
+        <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">res</span><span class="p">)</span>
+
+    <span class="c1"># Tabla comparativa — ahora incluye tiempo</span>
+    <span class="n">summary</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">([</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;Modelo&quot;</span><span class="p">:</span>       <span class="n">r</span><span class="p">[</span><span class="s2">&quot;model&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;CV ROC-AUC&quot;</span><span class="p">:</span>   <span class="nb">round</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s2">&quot;cv_roc_auc&quot;</span><span class="p">],</span> <span class="mi">4</span><span class="p">),</span>
+            <span class="s2">&quot;Test ROC-AUC&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s2">&quot;test_roc_auc&quot;</span><span class="p">],</span> <span class="mi">4</span><span class="p">),</span>
+            <span class="s2">&quot;Test F1&quot;</span><span class="p">:</span>      <span class="nb">round</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s2">&quot;test_f1&quot;</span><span class="p">],</span> <span class="mi">4</span><span class="p">),</span>
+            <span class="s2">&quot;Tiempo (s)&quot;</span><span class="p">:</span>   <span class="n">r</span><span class="p">[</span><span class="s2">&quot;train_time_s&quot;</span><span class="p">],</span>
+        <span class="p">}</span>
+        <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">results</span>
+    <span class="p">])</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s2">&quot;Test ROC-AUC&quot;</span><span class="p">,</span> <span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="s2">&quot;=&quot;</span><span class="o">*</span><span class="mi">60</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;  RESUMEN COMPARATIVO&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span><span class="o">*</span><span class="mi">60</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">summary</span><span class="o">.</span><span class="n">to_string</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">results</span><span class="p">,</span> <span class="n">summary</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">y_test</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Celda 1 — Entrenamiento</span>
+<span class="n">results</span><span class="p">,</span> <span class="n">summary</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">y_test</span> <span class="o">=</span> <span class="n">run_pipeline</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Dataset cargado: 7043 observaciones, 19 predictoras
+Distribución Churn: No=5174 | Yes=1869
+
+Train: 5634 | Test: 1409
+
+
+&gt;&gt;&gt; Entrenando CatBoost...
+Fitting 5 folds for each of 16 candidates, totalling 80 fits
+
+============================================================
+  CatBoost
+============================================================
+  Tiempo de entrenamiento: 174.78s
+  Mejores hiperparámetros: {&#39;clf__bagging_temperature&#39;: 0.0, &#39;clf__border_count&#39;: 64, &#39;clf__depth&#39;: 4, &#39;clf__l2_leaf_reg&#39;: 5}
+  Test Accuracy:           0.7488
+  Test Precision:          0.5174
+  Test Recall:             0.7941
+  Test F1-Score:           0.6266
+  Test ROC-AUC:            0.8478
+
+              precision    recall  f1-score   support
+
+    No Churn       0.91      0.73      0.81      1035
+       Churn       0.52      0.79      0.63       374
+
+    accuracy                           0.75      1409
+   macro avg       0.71      0.76      0.72      1409
+weighted avg       0.80      0.75      0.76      1409
+
+
+&gt;&gt;&gt; Entrenando LightGBM...
+Fitting 5 folds for each of 32 candidates, totalling 160 fits
+
+============================================================
+  LightGBM
+============================================================
+  Tiempo de entrenamiento: 772.23s
+  Mejores hiperparámetros: {&#39;clf__colsample_bytree&#39;: 0.6, &#39;clf__min_child_samples&#39;: 50, &#39;clf__num_leaves&#39;: 31, &#39;clf__reg_alpha&#39;: 1.0, &#39;clf__subsample&#39;: 1.0}
+  Test Accuracy:           0.7658
+  Test Precision:          0.5435
+  Test Recall:             0.7353
+  Test F1-Score:           0.6250
+  Test ROC-AUC:            0.8288
+
+              precision    recall  f1-score   support
+
+    No Churn       0.89      0.78      0.83      1035
+       Churn       0.54      0.74      0.62       374
+
+    accuracy                           0.77      1409
+   macro avg       0.72      0.76      0.73      1409
+weighted avg       0.80      0.77      0.78      1409
+
+
+&gt;&gt;&gt; Entrenando Random Forest...
+Fitting 5 folds for each of 96 candidates, totalling 480 fits
+
+============================================================
+  Random Forest
+============================================================
+  Tiempo de entrenamiento: 90.32s
+  Mejores hiperparámetros: {&#39;clf__bootstrap&#39;: True, &#39;clf__criterion&#39;: &#39;entropy&#39;, &#39;clf__max_depth&#39;: 6, &#39;clf__max_features&#39;: &#39;sqrt&#39;, &#39;clf__min_samples_leaf&#39;: 4, &#39;clf__min_samples_split&#39;: 2}
+  Test Accuracy:           0.7523
+  Test Precision:          0.5218
+  Test Recall:             0.7995
+  Test F1-Score:           0.6315
+  Test ROC-AUC:            0.8439
+
+              precision    recall  f1-score   support
+
+    No Churn       0.91      0.74      0.81      1035
+       Churn       0.52      0.80      0.63       374
+
+    accuracy                           0.75      1409
+   macro avg       0.72      0.77      0.72      1409
+weighted avg       0.81      0.75      0.77      1409
+
+
+&gt;&gt;&gt; Entrenando XGBoost...
+Fitting 5 folds for each of 32 candidates, totalling 160 fits
+
+============================================================
+  XGBoost
+============================================================
+  Tiempo de entrenamiento: 140.80s
+  Mejores hiperparámetros: {&#39;clf__colsample_bytree&#39;: 0.6, &#39;clf__gamma&#39;: 0.5, &#39;clf__max_depth&#39;: 4, &#39;clf__min_child_weight&#39;: 5, &#39;clf__subsample&#39;: 1.0}
+  Test Accuracy:           0.7431
+  Test Precision:          0.5104
+  Test Recall:             0.7861
+  Test F1-Score:           0.6189
+  Test ROC-AUC:            0.8447
+
+              precision    recall  f1-score   support
+
+    No Churn       0.90      0.73      0.81      1035
+       Churn       0.51      0.79      0.62       374
+
+    accuracy                           0.74      1409
+   macro avg       0.71      0.76      0.71      1409
+weighted avg       0.80      0.74      0.76      1409
+
+
+============================================================
+  RESUMEN COMPARATIVO
+============================================================
+       Modelo  CV ROC-AUC  Test ROC-AUC  Test F1  Tiempo (s)
+     CatBoost      0.8492        0.8478   0.6266      174.78
+      XGBoost      0.8466        0.8447   0.6189      140.80
+Random Forest      0.8479        0.8439   0.6315       90.32
+     LightGBM      0.8340        0.8288   0.6250      772.23
+</pre></div>
+</div>
+<div class="output traceback highlight-ipythontb notranslate"><div class="highlight"><pre><span></span><span class="gt">---------------------------------------------------------------------------</span>
+<span class="ne">KeyError</span><span class="g g-Whitespace">                                  </span>Traceback (most recent call last)
+<span class="n">Cell</span> <span class="n">In</span><span class="p">[</span><span class="mi">194</span><span class="p">],</span> <span class="n">line</span> <span class="mi">5</span>
+<span class="g g-Whitespace">      </span><span class="mi">2</span> <span class="n">results</span><span class="p">,</span> <span class="n">summary</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">y_test</span> <span class="o">=</span> <span class="n">run_pipeline</span><span class="p">()</span>
+<span class="g g-Whitespace">      </span><span class="mi">4</span> <span class="c1"># Celda 2 — tabla comparativa de métricas</span>
+<span class="ne">----&gt; </span><span class="mi">5</span> <span class="n">display</span><span class="p">(</span><span class="n">summary</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Mejores Params&quot;</span><span class="p">,</span> <span class="s2">&quot;Estimador&quot;</span><span class="p">]))</span>
+<span class="g g-Whitespace">      </span><span class="mi">7</span> <span class="c1"># Celda 3 — mejores hiperparámetros por modelo</span>
+<span class="g g-Whitespace">      </span><span class="mi">8</span> <span class="n">display</span><span class="p">(</span><span class="n">summary</span><span class="p">[[</span><span class="s2">&quot;Modelo&quot;</span><span class="p">,</span> <span class="s2">&quot;Mejores Params&quot;</span><span class="p">]])</span>
+
+<span class="nn">File c:\Users\User\.conda\envs\dataviz_venv\lib\site-packages\pandas\core\frame.py:5603,</span> in <span class="ni">DataFrame.drop</span><span class="nt">(self, labels, axis, index, columns, level, inplace, errors)</span>
+<span class="g g-Whitespace">   </span><span class="mi">5455</span> <span class="k">def</span><span class="w"> </span><span class="nf">drop</span><span class="p">(</span>
+<span class="g g-Whitespace">   </span><span class="mi">5456</span>     <span class="bp">self</span><span class="p">,</span>
+<span class="g g-Whitespace">   </span><span class="mi">5457</span>     <span class="n">labels</span><span class="p">:</span> <span class="n">IndexLabel</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+   <span class="p">(</span><span class="o">...</span><span class="p">)</span>
+<span class="g g-Whitespace">   </span><span class="mi">5464</span>     <span class="n">errors</span><span class="p">:</span> <span class="n">IgnoreRaise</span> <span class="o">=</span> <span class="s2">&quot;raise&quot;</span><span class="p">,</span>
+<span class="g g-Whitespace">   </span><span class="mi">5465</span> <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DataFrame</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="g g-Whitespace">   </span><span class="mi">5466</span><span class="w">     </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="g g-Whitespace">   </span><span class="mi">5467</span><span class="sd">     Drop specified labels from rows or columns.</span>
+<span class="g g-Whitespace">   </span><span class="mi">5468</span><span class="sd"> </span>
+<span class="sd">   (...)</span>
+<span class="g g-Whitespace">   </span><span class="mi">5601</span><span class="sd">             weight  1.0     0.8</span>
+<span class="g g-Whitespace">   </span><span class="mi">5602</span><span class="sd">     &quot;&quot;&quot;</span>
+<span class="ne">-&gt; </span><span class="mi">5603</span>     <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span>
+<span class="g g-Whitespace">   </span><span class="mi">5604</span>         <span class="n">labels</span><span class="o">=</span><span class="n">labels</span><span class="p">,</span>
+<span class="g g-Whitespace">   </span><span class="mi">5605</span>         <span class="n">axis</span><span class="o">=</span><span class="n">axis</span><span class="p">,</span>
+<span class="g g-Whitespace">   </span><span class="mi">5606</span>         <span class="n">index</span><span class="o">=</span><span class="n">index</span><span class="p">,</span>
+<span class="g g-Whitespace">   </span><span class="mi">5607</span>         <span class="n">columns</span><span class="o">=</span><span class="n">columns</span><span class="p">,</span>
+<span class="g g-Whitespace">   </span><span class="mi">5608</span>         <span class="n">level</span><span class="o">=</span><span class="n">level</span><span class="p">,</span>
+<span class="g g-Whitespace">   </span><span class="mi">5609</span>         <span class="n">inplace</span><span class="o">=</span><span class="n">inplace</span><span class="p">,</span>
+<span class="g g-Whitespace">   </span><span class="mi">5610</span>         <span class="n">errors</span><span class="o">=</span><span class="n">errors</span><span class="p">,</span>
+<span class="g g-Whitespace">   </span><span class="mi">5611</span>     <span class="p">)</span>
+
+<span class="nn">File c:\Users\User\.conda\envs\dataviz_venv\lib\site-packages\pandas\core\generic.py:4810,</span> in <span class="ni">NDFrame.drop</span><span class="nt">(self, labels, axis, index, columns, level, inplace, errors)</span>
+<span class="g g-Whitespace">   </span><span class="mi">4808</span> <span class="k">for</span> <span class="n">axis</span><span class="p">,</span> <span class="n">labels</span> <span class="ow">in</span> <span class="n">axes</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+<span class="g g-Whitespace">   </span><span class="mi">4809</span>     <span class="k">if</span> <span class="n">labels</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+<span class="ne">-&gt; </span><span class="mi">4810</span>         <span class="n">obj</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">_drop_axis</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span> <span class="n">axis</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="n">level</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="n">errors</span><span class="p">)</span>
+<span class="g g-Whitespace">   </span><span class="mi">4812</span> <span class="k">if</span> <span class="n">inplace</span><span class="p">:</span>
+<span class="g g-Whitespace">   </span><span class="mi">4813</span>     <span class="bp">self</span><span class="o">.</span><span class="n">_update_inplace</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+
+<span class="nn">File c:\Users\User\.conda\envs\dataviz_venv\lib\site-packages\pandas\core\generic.py:4852,</span> in <span class="ni">NDFrame._drop_axis</span><span class="nt">(self, labels, axis, level, errors, only_slice)</span>
+<span class="g g-Whitespace">   </span><span class="mi">4850</span>         <span class="n">new_axis</span> <span class="o">=</span> <span class="n">axis</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="n">level</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="n">errors</span><span class="p">)</span>
+<span class="g g-Whitespace">   </span><span class="mi">4851</span>     <span class="k">else</span><span class="p">:</span>
+<span class="ne">-&gt; </span><span class="mi">4852</span>         <span class="n">new_axis</span> <span class="o">=</span> <span class="n">axis</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="n">errors</span><span class="p">)</span>
+<span class="g g-Whitespace">   </span><span class="mi">4853</span>     <span class="n">indexer</span> <span class="o">=</span> <span class="n">axis</span><span class="o">.</span><span class="n">get_indexer</span><span class="p">(</span><span class="n">new_axis</span><span class="p">)</span>
+<span class="g g-Whitespace">   </span><span class="mi">4855</span> <span class="c1"># Case for non-unique axis</span>
+<span class="g g-Whitespace">   </span><span class="mi">4856</span> <span class="k">else</span><span class="p">:</span>
+
+<span class="nn">File c:\Users\User\.conda\envs\dataviz_venv\lib\site-packages\pandas\core\indexes\base.py:7136,</span> in <span class="ni">Index.drop</span><span class="nt">(self, labels, errors)</span>
+<span class="g g-Whitespace">   </span><span class="mi">7134</span> <span class="k">if</span> <span class="n">mask</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+<span class="g g-Whitespace">   </span><span class="mi">7135</span>     <span class="k">if</span> <span class="n">errors</span> <span class="o">!=</span> <span class="s2">&quot;ignore&quot;</span><span class="p">:</span>
+<span class="ne">-&gt; </span><span class="mi">7136</span>         <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">labels</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span><span class="si">}</span><span class="s2"> not found in axis&quot;</span><span class="p">)</span>
+<span class="g g-Whitespace">   </span><span class="mi">7137</span>     <span class="n">indexer</span> <span class="o">=</span> <span class="n">indexer</span><span class="p">[</span><span class="o">~</span><span class="n">mask</span><span class="p">]</span>
+<span class="g g-Whitespace">   </span><span class="mi">7138</span> <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">indexer</span><span class="p">)</span>
+
+<span class="ne">KeyError</span>: &quot;[&#39;Mejores Params&#39;, &#39;Estimador&#39;] not found in axis&quot;
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Celda 2 — Tabla comparativa de métricas</span>
+<span class="n">display</span><span class="p">(</span><span class="n">summary</span><span class="p">)</span>
+
+<span class="c1"># Celda 3 — Mejores hiperparámetros por modelo</span>
+<span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">([</span>
+    <span class="p">{</span><span class="s2">&quot;Modelo&quot;</span><span class="p">:</span> <span class="n">r</span><span class="p">[</span><span class="s2">&quot;model&quot;</span><span class="p">],</span> <span class="s2">&quot;Mejores Hiperparámetros&quot;</span><span class="p">:</span> <span class="n">r</span><span class="p">[</span><span class="s2">&quot;best_params&quot;</span><span class="p">]}</span>
+    <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">results</span>
+<span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Modelo</th>
+      <th>CV ROC-AUC</th>
+      <th>Test ROC-AUC</th>
+      <th>Test F1</th>
+      <th>Tiempo (s)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>CatBoost</td>
+      <td>0.8492</td>
+      <td>0.8478</td>
+      <td>0.6266</td>
+      <td>174.78</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>XGBoost</td>
+      <td>0.8466</td>
+      <td>0.8447</td>
+      <td>0.6189</td>
+      <td>140.80</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>Random Forest</td>
+      <td>0.8479</td>
+      <td>0.8439</td>
+      <td>0.6315</td>
+      <td>90.32</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>LightGBM</td>
+      <td>0.8340</td>
+      <td>0.8288</td>
+      <td>0.6250</td>
+      <td>772.23</td>
+    </tr>
+  </tbody>
+</table>
+</div></div><div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Modelo</th>
+      <th>Mejores Hiperparámetros</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>CatBoost</td>
+      <td>{'clf__bagging_temperature': 0.0, 'clf__border...</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>LightGBM</td>
+      <td>{'clf__colsample_bytree': 0.6, 'clf__min_child...</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>Random Forest</td>
+      <td>{'clf__bootstrap': True, 'clf__criterion': 'en...</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>XGBoost</td>
+      <td>{'clf__colsample_bytree': 0.6, 'clf__gamma': 0...</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Celda 4 — Exportar artefactos para 2_model_training.ipynb</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">joblib</span><span class="o">,</span><span class="w"> </span><span class="nn">os</span>
+
+<span class="c1"># Usamos ../ para subir un nivel y acceder a la carpeta data de la raíz</span>
+<span class="n">ruta_base_data</span> <span class="o">=</span> <span class="s2">&quot;../data&quot;</span>
+<span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">ruta_base_data</span><span class="si">}</span><span class="s2">/models&quot;</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1"># Modelos serializados con la ruta corregida</span>
+<span class="n">nombre_archivo</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;Random Forest&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">ruta_base_data</span><span class="si">}</span><span class="s2">/models/rf_best.pkl&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;XGBoost&quot;</span><span class="p">:</span>       <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">ruta_base_data</span><span class="si">}</span><span class="s2">/models/xgb_best.pkl&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;CatBoost&quot;</span><span class="p">:</span>      <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">ruta_base_data</span><span class="si">}</span><span class="s2">/models/cb_best.pkl&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;LightGBM&quot;</span><span class="p">:</span>      <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">ruta_base_data</span><span class="si">}</span><span class="s2">/models/lgbm_best.pkl&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">results</span><span class="p">:</span>
+    <span class="n">joblib</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s2">&quot;estimator&quot;</span><span class="p">],</span> <span class="n">nombre_archivo</span><span class="p">[</span><span class="n">r</span><span class="p">[</span><span class="s2">&quot;model&quot;</span><span class="p">]])</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="n">r</span><span class="p">[</span><span class="s1">&#39;model&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> guardado en </span><span class="si">{</span><span class="n">nombre_archivo</span><span class="p">[</span><span class="n">r</span><span class="p">[</span><span class="s1">&#39;model&#39;</span><span class="p">]]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="c1"># Conjunto de prueba con la ruta corregida</span>
+<span class="n">X_test</span><span class="o">.</span><span class="n">to_parquet</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">ruta_base_data</span><span class="si">}</span><span class="s2">/X_test.parquet&quot;</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">y_test</span><span class="o">.</span><span class="n">to_frame</span><span class="p">(</span><span class="s2">&quot;Churn&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">to_parquet</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">ruta_base_data</span><span class="si">}</span><span class="s2">/y_test.parquet&quot;</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Todo guardado exitosamente en la carpeta raíz: </span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">ruta_base_data</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span> CatBoost guardado en ../data/models/cb_best.pkl
+ LightGBM guardado en ../data/models/lgbm_best.pkl
+ Random Forest guardado en ../data/models/rf_best.pkl
+ XGBoost guardado en ../data/models/xgb_best.pkl
+
+✅ Todo guardado exitosamente en la carpeta raíz: c:\Users\User\Desktop\MachineLearningUN\MiniProyecto3_ML\data
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            name: "python3",
+            path: "./."
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="intro.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Telco Customer Churn — Proyecto ML</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="2_model_training.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Evaluación del modelo</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#descripcion-del-dataset">Descripción del dataset</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#carga-del-dataset">Carga del dataset</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#diccionario-de-variables">Diccionario de Variables</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#analisis-univariado">Análisis univariado</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#variables-categoricas">Variables Categóricas</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#churn">Churn</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#gender">Gender</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#partner">Partner</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#dependents">Dependents</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#phoneservice">PhoneService</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#multiplelines">MultipleLines</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#internetservice">InternetService</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#onlinesecurity">OnlineSecurity</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#onlinebackup">OnlineBackup</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#deviceprotection">DeviceProtection</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#techsupport">TechSupport</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#streamingtv">StreamingTV</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#streamingmovies">StreamingMovies</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#contract">Contract</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#paperlessbilling">PaperlessBilling</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#paymentmethod">PaymentMethod</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#totalcharges">TotalCharges</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#variables-numericas">Variables Númericas</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#senior-citizen">Senior Citizen</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#preprocesamiento-y-deteccion-de-data-leakage">Preprocesamiento y detección de Data Leakage</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Carlos Isaac Romero Mendoza
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2023.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
